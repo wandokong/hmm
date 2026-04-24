@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>퀴즈</title>
+</head>
+<body>
+    <h1 id="time"></h1>
+    <h2 id="question"></h2>
+    <h3 id="result"></h3>
+    <h3 id="score"></h3>
+
+    <script>
+        let time = 10;
+        let timerId;
+
+        let score = 0;
+        // 1️⃣ 문제 목록
+        let questions = [
+            { q: "복사 단축키?", key: "c", ctrl: true },
+            { q: "붙여넣기 단축키?", key: "v", ctrl: true },
+            { q: "되돌리기 단축키?", key: "z", ctrl: true },
+            { q: "잘라내기 단축키?", key: "x", ctrl: true }
+        ];
+
+        document.getElementById("score").innerText = score;
+
+        // 2️⃣ 현재 문제 번호
+        let current = 0;
+
+        // 3️⃣ 문제 출력
+        function showQuestion() {
+            document.getElementById("question").innerText = questions[current].q;
+        }
+
+        // 처음 문제 출력
+        showQuestion();
+
+
+
+
+        function startTimer() {
+            clearInterval(timerId);
+            time = 10;//시간 초기화
+            document.getElementById("time").innerText = time;//화면에 10초 표시
+            timerId = setInterval(() => {//1초마다 실행
+                time--;
+                document.getElementById("time").innerText = time;//화면에 시간 표시
+
+                if (time===0){
+                    clearInterval(timerId);//타이머 멈춤
+                    alert("시간 끝")//알림
+                }
+            }, 1000);
+        }
+
+
+
+
+
+
+        // 4️⃣ 키 입력 처리
+        document.addEventListener("keydown", function(e) {
+
+            if (current >= questions.length) return;//문제 끝나면 인식 x
+
+            let q = questions[current];
+
+            console.log(e.ctrlKey, e.key);
+
+            // 정답 체크
+            if (e.ctrlKey === q.ctrl && e.key.toLowerCase() === q.key) {
+                document.getElementById("result").innerText = "정답";
+
+                current++; // 다음 문제로 이동
+                score++;
+                document.getElementById("score").innerText = score;
+                clearInterval(timerId)
+                startTimer();
+
+                // 문제 남아있으면
+                if (current < questions.length) {
+                    showQuestion();
+                } else {
+                    document.getElementById("question").innerText = "끝!";
+                    return;
+                    clearInterval(timerId);
+                }
+            } else {
+                document.getElementById("result").innerText = "오답";
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>
