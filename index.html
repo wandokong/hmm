@@ -30,6 +30,8 @@
 
         // 3️⃣ 문제 출력
         function showQuestion() {
+        if (current >= questions.length) return;
+
             document.getElementById("question").innerText = questions[current].q;
         }
 
@@ -93,7 +95,3 @@
     </script>
 </body>
 </html>
-
-<!--변화 체크용 주석-->
-<!--한번더-->
-<!--한번더-->
