@@ -62,8 +62,6 @@
                 
 
         function nextQuestion() {
-            current++;
-
             if (current < questions.length) {
                 showQuestion();
                 startTimer();
@@ -71,40 +69,43 @@
                 document.getElementById("question").innerText = "끝!";
                 clearInterval(timerId);
             }
+            current++;
         }
 
                 
-            document.addEventListener("keydown", function(e) {
+        document.addEventListener("keydown", function(e) {
 
-            if (current >= questions.length) return;//문제 끝나면 인식 x
+        if (current >= questions.length) return;//문제 끝나면 인식 x
 
-            let q = questions[current];
+        let q = questions[current];
 
-            console.log(e.ctrlKey, e.key);
+        console.log(e.ctrlKey, e.key);
 
-            // 정답 체크
-            if (e.ctrlKey === q.ctrl && e.key.toLowerCase() === q.key) {
-                document.getElementById("result").innerText = "정답";
 
-                current++; // 다음 문제로 이동
-                score++;
-                document.getElementById("score").innerText = score;
-                clearInterval(timerId)
-                startTimer();
+        if (e.key === "Control") {
+            return;
+        }
+
+        // 정답 체크
+        if (e.ctrlKey === q.ctrl && e.key.toLowerCase() === q.key) {
+
+            document.getElementById("result").innerText = "정답";
+
+            current++; // 다음 문제로 이동
+            score++;// 점수 증가
+            document.getElementById("score").innerText = score;// 점수 화면에 표시
+            clearInterval(timerId)// 타이머 멈춤
+            startTimer();// 타이머 시작
 
                 // 문제 남아있으면
-                if (current < questions.length) {
-                    showQuestion();
-                } else {
-                    document.getElementById("question").innerText = "끝!";
-                    return;
-                    clearInterval(timerId);
+                if (current < questions.length) {//문제 수 보다 현재 문제 번호가 작으면
+                    nextQuestion();// 다음 문제
                 }
-            } else {
-                document.getElementById("result").innerText = "오답";
-                nextQuestion();
-            }
 
+            }else {
+                document.getElementById("result").innerText = "오답";// 오답 표시
+                nextQuestion();// 다음 문제
+        }
         });
 
     </script>
