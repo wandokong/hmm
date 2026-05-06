@@ -61,16 +61,16 @@
         }
                 
 
-        function nextQuestion() {
+        function nextQuestion() {// 다음 문제
 
             if (current < questions.length) {
                 showQuestion();
                 startTimer();
+                current++;
             } else {
                 document.getElementById("question").innerText = "끝!";
                 clearInterval(timerId);
             }
-            current++;
         }
 
                 
@@ -78,7 +78,7 @@
 
         if (current >= questions.length) return;//문제 끝나면 인식 x
 
-        let q = questions[current];
+        let q = questions[current];//현재 문제
 
         console.log(e.ctrlKey, e.key);
 
