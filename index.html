@@ -60,6 +60,19 @@
             }, 1000);
         }
                 
+
+        function nextQuestion() {
+            current++;
+
+            if (current < questions.length) {
+                showQuestion();
+                startTimer();
+            } else {
+                document.getElementById("question").innerText = "끝!";
+                clearInterval(timerId);
+            }
+        }
+
                 
             document.addEventListener("keydown", function(e) {
 
@@ -89,6 +102,7 @@
                 }
             } else {
                 document.getElementById("result").innerText = "오답";
+                nextQuestion();
             }
 
         });
