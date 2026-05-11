@@ -1,4 +1,4 @@
-<!DOCTYPE html><!--오류난다 tlqkf qudtls wnstjddl 고쳐보자 힘들어도 ㅎㅇㅌ-->
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -7,6 +7,7 @@
 <body>
     <h1 id="time"></h1>
     <h2 id="question"></h2>
+    <button onclick="showQuestion()" id="button">문제 시작</button>
     <h3 id="result"></h3>
     <h3 id="score"></h3>
 
@@ -23,27 +24,23 @@
             { q: "잘라내기 단축키?", key: "x", ctrl: true }
         ];
 
-        document.getElementById("score").innerText = score;
-
         //현재 문제 번호
         let current = 0;
 
+        let start = false;
         //문제 출력
         function showQuestion() {
-        if (current >= questions.length) return; // 문제 끝나면 출력 x
-
+            document.getElementById("button").style.display = "none";// 버튼 숨김
             document.getElementById("question").innerText = questions[current].q;// question 이라는 Id를 가진 text에 qusition 배열의 q값을 출력
-            
+            document.getElementById("score").innerText = score;
+            startTimer();// 타이머 시작
+            start = true;
         }
-
-        // 처음 문제 출력
-        showQuestion();
-
 
         function startTimer() {
             clearInterval(timerId);
             time = 10;//시간 초기화
-            document.getElementById("time").innerText = time;//화면에 10초 표시
+            document.getElementById("time").innerText = time;//화면에 10초 표시 
             timerId = setInterval(() => {//1초마다 실행
                 if (current >= questions.length) {//문제 끝나면 타이머 멈춤
                     clearInterval(timerId);
@@ -62,51 +59,40 @@
                 
 
         function nextQuestion() {// 다음 문제
+            clearInterval(timerId);// 타이머 멈춤
+            document.getElementById("score").innerText = score;// 점수 화면에 표시
+            current++;// 문제 번호 증가
 
-            if (current < questions.length) {
-                showQuestion();
+            if (current < questions.length) {// 다음 문제가 있으면
                 startTimer();
-                current++;
-            } else {
+                document.getElementById("question").innerText = questions[current].q;
+            } else {//없으면
                 document.getElementById("question").innerText = "끝!";
                 clearInterval(timerId);
             }
+
         }
 
                 
         document.addEventListener("keydown", function(e) {
 
-        if (current >= questions.length) return;//문제 끝나면 인식 x
+            if (current >= questions.length) return;//문제 끝나면 인식 x
+            if (e.key === "Control") return;// Ctrl 키 자체는 무시
 
-        let q = questions[current];//현재 문제
+            let q = questions[current];//현재 문제
 
-        console.log(e.ctrlKey, e.key);
+            // 정답 체크
+            if (start===true){
+                if (e.ctrlKey === q.ctrl && e.key.toLowerCase() === q.key) {
+                    document.getElementById("result").innerText = "정답";
+                    score++;// 점수 증가
+                    nextQuestion();// 다음 문제
 
-
-        if (e.key === "Control") {
-            return;
-        }
-
-        // 정답 체크
-        if (e.ctrlKey === q.ctrl && e.key.toLowerCase() === q.key) {
-
-            document.getElementById("result").innerText = "정답";
-
-            current++; // 다음 문제로 이동
-            score++;// 점수 증가
-            document.getElementById("score").innerText = score;// 점수 화면에 표시
-            clearInterval(timerId)// 타이머 멈춤
-            startTimer();// 타이머 시작
-
-                // 문제 남아있으면
-                if (current < questions.length) {//문제 수 보다 현재 문제 번호가 작으면
+                }else {
+                    document.getElementById("result").innerText = "오답";// 오답 표시
                     nextQuestion();// 다음 문제
                 }
-
-            }else {
-                document.getElementById("result").innerText = "오답";// 오답 표시
-                nextQuestion();// 다음 문제
-        }
+            }
         });
 
     </script>
