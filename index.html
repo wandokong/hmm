@@ -50,11 +50,11 @@
                 document.getElementById("time").innerText = time;//화면에 시간 표시
 
                 if (time===0){
-                    clearInterval(timerId);//타이머 멈춤
-                    alert("시간 끝")//알림
+                    document.getElementById("result").innerText = "시간 초과";// 시간 초과 표시
+                    nextQuestion();//다음 문제
                 }
             
-            }, 1000);
+            }, 100);
         }
                 
 
@@ -78,20 +78,19 @@
 
             if (current >= questions.length) return;//문제 끝나면 인식 x
             if (e.key === "Control") return;// Ctrl 키 자체는 무시
+            if (start===false) return;
 
             let q = questions[current];//현재 문제
 
             // 정답 체크
-            if (start===true){
-                if (e.ctrlKey === q.ctrl && e.key.toLowerCase() === q.key) {
-                    document.getElementById("result").innerText = "정답";
-                    score++;// 점수 증가
-                    nextQuestion();// 다음 문제
+            if (e.ctrlKey === q.ctrl && e.key.toLowerCase() === q.key) {
+                document.getElementById("result").innerText = "정답";
+                score++;// 점수 증가
+                nextQuestion();// 다음 문제
 
-                }else {
-                    document.getElementById("result").innerText = "오답";// 오답 표시
-                    nextQuestion();// 다음 문제
-                }
+            }else {
+                document.getElementById("result").innerText = "오답";// 오답 표시
+                nextQuestion();// 다음 문제
             }
         });
 
