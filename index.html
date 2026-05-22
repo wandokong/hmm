@@ -135,17 +135,23 @@
         function startTimer() {
             clearInterval(timerId);
             time = 10;//시간 초기화
+            document.getElementById("time").style.color = "rgb(211, 218, 217)";
+
             document.getElementById("time").innerText = time;//화면에 10초 표시 
             timerId = setInterval(() => {//1초마다 실행
-                if (questions.length === 0) {//문제 끝나면 타이머 멈춤
-                    clearInterval(timerId);
-                    return;
-                }
                 time--;
                 document.getElementById("time").innerText = time;//화면에 시간 표시
+                
+                if (time <= 3) {
+                    document.getElementById("time").style.color = "rgb(249, 56, 39)";// 시간이 3초 이하일 때 빨간색으로 표시
+                } else {
+                    document.getElementById("time").style.color = "rgb(211, 218, 217)";// 그 외에는 흰색으로 표시
+                }
 
                 if (time===0){
                     document.getElementById("result").innerText = "시간 초과";// 시간 초과 표시
+                    console.log("시간 초과");
+                    document.getElementById("result").style.color = "rgb(255, 157, 35)";
                     nextQuestion();//다음 문제
                 }
             
@@ -194,11 +200,13 @@
             // 정답 체크
             if (e.ctrlKey === q.ctrl && e.key.toLowerCase() === q.key) {
                 document.getElementById("result").innerText = "정답";
+                document.getElementById("result").style.color = "rgb(22, 196, 127)";
                 score++;// 점수 증가
                 nextQuestion();// 다음 문제
 
             }else {
                 document.getElementById("result").innerText = "오답";// 오답 표시
+                document.getElementById("result").style.color = "rgb(249, 56, 39)";
                 nextQuestion();// 다음 문제
             }
         });
