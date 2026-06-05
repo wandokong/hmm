@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- 어 카테고리 만들면서 문제 생김 지피티한테 물어보며 해결 문제는 문제가 안나옴 그리고 주석에 리드미 작성-->
+<!DOCTYPE html><!-- -->
 <html>
 <head>
     <meta charset="UTF-8">
@@ -71,6 +71,27 @@
         margin-left: 5px;
         margin-right: 5px;
     }
+    #categoryBar{
+        display:flex;
+        justify-content:center;
+        margin-bottom:20px;
+    }
+    .categoryBtn{
+        background-color:#37353E;
+        color:#D3DAD9;
+        border:none;
+        font-size:18px;
+        cursor:pointer;
+        transition:0.2s ease;
+    }
+    .categoryBtn:hover{
+        background-color:#715A5A;
+        transform:scale(1.1);
+    }
+    .selectedCategory{
+        background-color:#715A5A;
+        transform:scale(1.1);
+    }
 
     </style>
 
@@ -79,8 +100,10 @@
 
     <div class="game"><!-- 게임 전체 컨테이너 -->
         <div id ="menu"><!-- 메뉴 화면 -->
-            <button onclick="selectCategory('Windows')">Windows</button>
-            <button onclick="selectCategory('Linux')">Linux</button>
+            <div id="categoryBar">
+                <button class="categoryBtn" onclick="selectCategory('Windows', this)">Windows</button>
+                <button class="categoryBtn" onclick="selectCategory('Linux', this)">Linux</button>
+            </div>
 
             <h1>단축키 퀴즈</h1>
             <button id="button">문제 시작</button>
@@ -111,12 +134,20 @@
         let score = 0;
         //문제 목록
         let originalQuestions = [
-            { q: "복사 단축키?", key: "c", ctrl: true, category: "Windows" },
-            { q: "붙여넣기 단축키?", key: "v", ctrl: true, category: "Windows" },
-            { q: "되돌리기 단축키?", key: "z", ctrl: true, category: "Windows" },
-            { q: "잘라내기 단축키?", key: "x", ctrl: true, category: "Windows" },
-            { q: "터미널 화면 지우기?", key: "l", ctrl: true, category: "Linux" },
-            { q: "프로그램 강제 종료?", key: "q", ctrl: true, category: "Linux" }
+            { q: "복사", keys: ["control", "c"], category: "Windows" },
+            { q: "붙여넣기", keys: ["control", "v"], category: "Windows" },
+            { q: "되돌리기", keys: ["control", "z"], category: "Windows" },
+            { q: "잘라내기", keys: ["control", "x"], category: "Windows" },
+            { q: "전체 선택", keys: ["control", "a"], category: "Windows" },
+            { q: "새로고침", keys: ["f5"], category: "Windows" },
+            { q: "인쇄", keys:["control","p"], category:"Windows" },
+            { q: "찾기", keys:["control","f"], category:"Windows" },
+            { q: "저장", keys:["control","s"], category:"Windows" },
+            { q: "열기", keys:["control","o"], category:"Windows" },
+
+            { q: "터미널 화면 지우기", keys: ["control", "l"], category: "Linux" },
+            { q: "프로그램 강제 종료", keys: ["control", "q"], category: "Linux" },
+            { q: "터미널 종료?", keys: ["control", "c"], category: "Linux" }
         ];
 
         let currentCategory = "";
@@ -131,14 +162,19 @@
         let start = false;
         //문제 출력
 
-        function selectCategory(category) { // 카테고리 선택 함수
+        function selectCategory(category, button) { // 카테고리 선택 함수
             currentCategory = category;// 선택한 카테고리 저장
 
             questions = originalQuestions.filter(
                 q => q.category === category // 선택한 카테고리에 맞는 문제로 필터링
             );
-
             totalQuestions = questions.length; // 총 문제 수 업데이트
+
+            let buttons = document.querySelectorAll(".categoryBtn");
+            buttons.forEach(btn => {
+                btn.classList.remove("selectedCategory"); // 모든 버튼에서 선택된 클래스 제거
+            });
+            button.classList.add("selectedCategory"); // 선택한 버튼에 선택된 클래스 추가
         }
 
         function startQuestion() {
@@ -169,7 +205,6 @@
 
                 if (time===0){
                     document.getElementById("result").innerText = "시간 초과";// 시간 초과 표시
-                    console.log("시간 초과");
                     document.getElementById("result").style.color = "rgb(255, 157, 35)";
                     nextQuestion();//다음 문제
                 }
@@ -187,19 +222,28 @@
             } else {//없으면
                 result();
             }
-
         }
 
         document.addEventListener("keydown", function(e) {
-            e.preventDefault(); // 기본 키 동작 방지 (예: Ctrl+C가 복사하는 것을 방지)
+            if (start===true){
+                e.preventDefault(); // 기본 키 동작 방지 (예: Ctrl+C가 복사하는 것을 방지)
+            } 
             
             if (e.key === "Control") return;// Ctrl 키 자체는 무시
+            if (e.key === "Shift") return;// Shift 키 자체는 무시
+            if (e.key === "Alt") return;// Alt 키 자체는 무시
             if (start===false) return;
 
             let q = currentQuestion;//현재 문제
 
+            let pressedKeys = [];// 누른 키 배열
+            if (e.ctrlKey) pressedKeys.push("control");// Ctrl 키가 눌렸는지 확인
+            if (e.altKey) pressedKeys.push("alt");// Alt 키가 눌렸는지 확인
+            if (e.shiftKey) pressedKeys.push("shift");// Shift 키가 눌렸는지 확인
+            pressedKeys.push(e.key.toLowerCase());// 누른 키 추가
+
             // 정답 체크
-            if (e.ctrlKey === q.ctrl && e.key.toLowerCase() === q.key) {
+            if (JSON.stringify(pressedKeys) === JSON.stringify(q.keys)) { // 누른 키와 현재 문제 키 비교, 그냥 비교하면 false나오므로 JSON.stringify로 문자열로 변환해서 비교 
                 document.getElementById("result").innerText = "정답";
                 document.getElementById("result").style.color = "rgb(22, 196, 127)";
                 score++;// 점수 증가
@@ -219,10 +263,11 @@
             document.getElementById("endScreen").style.display = "block";
             document.getElementById("finalScore").innerText = "점수 : " + score + " / " + totalQuestions;// 최종 점수 표시
 
-            if(score === totalQuestions){
+            let percent = score / totalQuestions * 100;// 점수 백분율 계산
+            if(percent === 100){
                 document.getElementById("grade").style.color = "green";
                 document.getElementById("grade").innerText = "PERFECT";
-            }else if(score >= 3){
+            }else if(percent >= 70){
                 document.getElementById("grade").style.color = "blue";
                 document.getElementById("grade").innerText = "GOOD";
             }else{
@@ -268,5 +313,3 @@
     </script>
 </body>
 </html>
-
-<!-- 저장 확인용 문장 -->
