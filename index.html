@@ -94,10 +94,8 @@
     }
 
     </style>
-
 </head>
 <body>
-
     <div class="game"><!-- 게임 전체 컨테이너 -->
         <div id ="menu"><!-- 메뉴 화면 -->
             <div id="categoryBar">
@@ -124,14 +122,12 @@
         </div>
     </div>
 
-    
-
     <script>
         let time = 10;
         let timerId;
 
-        let score = 0;
-        //문제 목록
+        let score = 0;//문제 목록
+        
         let originalQuestions = [
             { q: "복사", keys: ["control", "c"], category: "Windows" },
             { q: "붙여넣기", keys: ["control", "v"], category: "Windows" },
@@ -151,19 +147,14 @@
             { q: "프로그램 강제 종료", keys: ["control", "q"], category: "Linux" },
             { q: "터미널 종료?", keys: ["control", "c"], category: "Linux" }
         ];
+        let questions = [];
+        let totalQuestions = 0;
+        let currentQuestion;//현재 문제
 
         let currentCategory = "";
 
-        let questions = [];
-
-        let totalQuestions = 0;
-
-        //현재 문제
-        let currentQuestion;
-
-        let start = false;
-        //문제 출력
-
+        let start = false;//문제 출력
+        
         const correctColor = "rgb(22, 196, 127)";
         const timeoutColor = "rgb(255, 157, 35)";
         const wrongColor = "rgb(249, 56, 39)";
@@ -186,7 +177,7 @@
         function startQuestion() {
             let randomIndex = Math.floor(Math.random() * questions.length);//문제 배열에서 랜덤으로 문제 선택
             currentQuestion = questions[randomIndex];
-            document.getElementById("question").innerText = currentQuestion.q;// question 이라는 Id를 가진 text에 qusition 배열의 q값을 출력
+            document.getElementById("question").innerText = currentQuestion.q + " (" + (totalQuestions - questions.length) + " / " + totalQuestions + ")";// question 이라는 Id를 가진 text에 qusition 배열의 q값을 출력
             questions.splice(randomIndex, 1);//문제 배열에서 출제된 문제 제거
             document.getElementById("score").innerText = score + "점";
             startTimer();// 타이머 시작
@@ -235,11 +226,10 @@
         document.addEventListener("keydown", function(e) {
             e.preventDefault(); // 기본 키 동작 방지 (예: Ctrl+C가 복사하는 것을 방지)
             if (start===false) return;// 게임이 시작되지 않았으면 무시
-        
+    
             if (e.key === "Control") return;// Ctrl 키 자체는 무시
             if (e.key === "Shift") return;// Shift 키 자체는 무시
             if (e.key === "Alt") return;// Alt 키 자체는 무시
-            if (start===false) return;
 
             let q = currentQuestion;//현재 문제
 
@@ -309,7 +299,7 @@
 
         document.getElementById("restart").addEventListener("click", function() { // 다시 시작 버튼 클릭 시
             questions = originalQuestions.filter(
-            q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
+                q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
             );
             score = 0; // 점수 초기화
             showScreen("gameScreen"); // 게임 화면 표시
@@ -318,7 +308,7 @@
 
         document.getElementById("menuButton").addEventListener("click", function() { // 메뉴로 버튼 클릭 시
             questions = originalQuestions.filter(
-            q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
+                q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
             );
             score = 0; // 점수 초기화
             showScreen("menu"); // 메뉴 화면 표시
