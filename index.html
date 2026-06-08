@@ -112,7 +112,6 @@
         <div id="gameScreen"><!-- 게임 화면 -->
             <h1 id="time"></h1>
             <h2 id="question"></h2>
-            <h3 id="result"></h3>
             <h3 id="score"></h3>
         </div>
 
@@ -157,7 +156,7 @@
 
         let questions = [];
 
-        let totalQuestions = [];
+        let totalQuestions = 0;
 
         //현재 문제
         let currentQuestion;
@@ -211,17 +210,19 @@
                 }
 
                 if (time===0){
-                    document.getElementById("result").innerText = "시간 초과";// 시간 초과 표시
-                    document.getElementById("result").style.color = timeoutColor;
-                    nextQuestion();//다음 문제
+                    document.getElementById("time").innerText = "시간 초과";// 시간 초과 표시
+                    document.getElementById("time").style.color = timeoutColor;
+                    clearInterval(timerId);// 타이머 멈춤
+                    start = false;
+                    setTimeout(() => {
+                        nextQuestion();// 다음 문제
+                    }, 800);
                 }
-            
-            }, 1000);
+            }, 800);
         }
                 
 
         function nextQuestion() {// 다음 문제
-            clearInterval(timerId);// 타이머 멈춤
             document.getElementById("score").innerText = score + "점";// 점수 화면에 표시
 
             if (questions.length > 0) {// 다음 문제가 있으면
@@ -232,10 +233,9 @@
         }
 
         document.addEventListener("keydown", function(e) {
-            if (start===true){
-                e.preventDefault(); // 기본 키 동작 방지 (예: Ctrl+C가 복사하는 것을 방지)
-            } 
-            
+            e.preventDefault(); // 기본 키 동작 방지 (예: Ctrl+C가 복사하는 것을 방지)
+            if (start===false) return;// 게임이 시작되지 않았으면 무시
+        
             if (e.key === "Control") return;// Ctrl 키 자체는 무시
             if (e.key === "Shift") return;// Shift 키 자체는 무시
             if (e.key === "Alt") return;// Alt 키 자체는 무시
@@ -251,15 +251,23 @@
 
             // 정답 체크
             if (JSON.stringify(pressedKeys) === JSON.stringify(q.keys)) { // 누른 키와 현재 문제 키 비교, 그냥 비교하면 false나오므로 JSON.stringify로 문자열로 변환해서 비교 
-                document.getElementById("result").innerText = "정답";
-                document.getElementById("result").style.color = correctColor;
+                document.getElementById("time").style.color = correctColor;
+                document.getElementById("time").innerText = "정답";
+                clearInterval(timerId);// 타이머 멈춤
                 score++;// 점수 증가
-                nextQuestion();// 다음 문제
+                start = false;
+                setTimeout(() => {
+                    nextQuestion();// 다음 문제
+                }, 1000);
 
             }else {
-                document.getElementById("result").innerText = "오답";// 오답 표시
-                document.getElementById("result").style.color = wrongColor;
-                nextQuestion();// 다음 문제
+                document.getElementById("time").style.color = wrongColor;
+                document.getElementById("time").innerText = "오답";
+                clearInterval(timerId);// 타이머 멈춤
+                start = false;
+                setTimeout(() => {
+                    nextQuestion();// 다음 문제
+                }, 1000);
             }
         });
 
