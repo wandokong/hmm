@@ -97,6 +97,16 @@
         overflow-y:auto;
     }
 
+    #studyScreen{
+        display:none; /* 학습 화면 숨김 */
+    }
+
+    #studyList{
+        max-height:300px;
+        overflow-y:auto;
+        text-align:left;
+    }
+
     </style>
 </head>
 <body>
@@ -108,9 +118,17 @@
             </div>
 
             <h1>단축키 퀴즈</h1>
-            <button id="button">문제 시작</button>
+            <button id="studyButton">학습하기</button>
+            <button id="startButton">문제 시작</button>
+            
         </div>
-    
+        
+        <div id="studyScreen"><!-- 학습 화면-->
+            <h1>학습하기</h1>
+            <div id="studyList"></div>
+            <button id="backMenu">메뉴로</button>
+        </div>
+
         <div id="gameScreen"><!-- 게임 화면 -->
             <h1 id="time"></h1>
             <h2 id="question"></h2>
@@ -159,7 +177,7 @@
 
             { q: "터미널 화면 지우기", keys: ["control", "l"], category: "Linux" },
             { q: "프로그램 강제 종료", keys: ["control", "q"], category: "Linux" },
-            { q: "터미널 종료?", keys: ["control", "c"], category: "Linux" }
+            { q: "터미널 종료", keys: ["control", "c"], category: "Linux" }
         ];
         let questions = [];
         let totalQuestions = 0;
@@ -363,7 +381,7 @@
             document.getElementById(screenId).style.display = "block";
         }
                 
-        document.getElementById("button").addEventListener("click", function() {// 시작 버튼 클릭 시
+        document.getElementById("startButton").addEventListener("click", function() {// 시작 버튼 클릭 시
             if(currentCategory === "") {
                 alert("카테고리를 선택해주세요!");// 카테고리 선택 안했을 때 경고창
                 return;
@@ -371,6 +389,34 @@
             
             showScreen("gameScreen"); // 게임 화면 표시
             startQuestion(); // 문제 시작
+        });
+
+        document.getElementById("studyButton").addEventListener("click", function() { // 학습하기 버튼 클릭 시
+            if(currentCategory === "") {
+                alert("카테고리를 선택해주세요!");// 카테고리 선택 안했을 때 경고창
+                return;
+            }
+
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("studyScreen").style.display = "block";
+
+            let studyHTML = "";
+
+            let categoryQuestions = originalQuestions.filter(q => q.category === currentCategory);
+
+            for (let q of categoryQuestions) {
+                studyHTML += "<h3><b>문제:</b> " + q.q + "</h3>";
+                studyHTML += "<h3><b>정답:</b> " + q.keys.join(" + ") + "</h3>";
+                studyHTML += "<hr>";
+            }
+            document.getElementById("studyList").innerHTML = studyHTML;
+        });
+
+        document.getElementById("backMenu").addEventListener("click", function(){
+
+            document.getElementById("studyScreen").style.display = "none";
+            document.getElementById("menu").style.display = "block";
+
         });
 
         document.getElementById("restart").addEventListener("click", function() { // 다시 시작 버튼 클릭 시
