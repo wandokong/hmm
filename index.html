@@ -92,6 +92,10 @@
         background-color:#715A5A;
         transform:scale(1.1);
     }
+    #review{
+        max-height:250px;
+        overflow-y:auto;
+    }
 
     </style>
 </head>
@@ -111,12 +115,14 @@
             <h1 id="time"></h1>
             <h2 id="question"></h2>
             <h3 id="score"></h3>
+            <h3 id="currentInput">현재 입력</h3>
         </div>
 
         <div id="endScreen"><!-- 게임 끝 화면 -->
             <h1>게임 끝!</h1>
             <h2 id="finalScore"></h2>
             <h3 id="grade"></h3>
+            <div id="review"></div>
             <button id="restart">다시 시작</button>
             <button id="menuButton">메뉴로</button>
         </div>
@@ -142,6 +148,14 @@
             { q: "전체화면", keys:["f11"], category:"Windows" },
             { q: "파일 이름 바꾸기", keys:["f2"], category:"Windows" },
             { q: "우클릭 메뉴", keys:["shift","f10"], category:"Windows" },
+            { q: "다시 실행 단축키", keys:["control","y"], category:"Windows" },
+            { q: "단어 단위로 왼쪽 이동", keys:["control","arrowleft"], category:"Windows" },
+            { q: "단어 단위로 오른쪽 이동", keys:["control","arrowright"], category:"Windows" },
+            { q: "단어 단위로 삭제", keys:["control","backspace"], category:"Windows" },
+            { q: "문서 맨 앞으로 이동", keys:["control","home"], category:"Windows" },
+            { q: "문서 맨 뒤로 이동", keys:["control","end"], category:"Windows" },
+            { q: "현재 줄 맨 앞으로 이동", keys:["home"], category:"Windows" },
+            { q: "현재 줄 맨 뒤로 이동", keys:["end"], category:"Windows" },
 
             { q: "터미널 화면 지우기", keys: ["control", "l"], category: "Linux" },
             { q: "프로그램 강제 종료", keys: ["control", "q"], category: "Linux" },
@@ -154,10 +168,14 @@
         let currentCategory = "";
 
         let start = false;//문제 출력
+
+        let pressedKeys = [];// 누른 키 배열
         
         const correctColor = "rgb(22, 196, 127)";
         const timeoutColor = "rgb(255, 157, 35)";
         const wrongColor = "rgb(249, 56, 39)";
+
+        let wrongQuestions = [];// 틀린 문제 배열
 
         function selectCategory(category, button) { // 카테고리 선택 함수
             currentCategory = category;// 선택한 카테고리 저장
@@ -205,14 +223,20 @@
                     document.getElementById("time").style.color = timeoutColor;
                     clearInterval(timerId);// 타이머 멈춤
                     start = false;
+
+                    wrongQuestions.push({// 틀린 문제 배열에 추가
+                        question: currentQuestion.q,
+                        userInput: "입력 없음",
+                        answer: currentQuestion.keys.join(" + ")
+                    })
+
                     setTimeout(() => {
                         nextQuestion();// 다음 문제
-                    }, 800);
+                    }, 1000);
                 }
-            }, 800);
+            }, 1000);
         }
-                
-
+            
         function nextQuestion() {// 다음 문제
             document.getElementById("score").innerText = score + "점";// 점수 화면에 표시
 
@@ -224,16 +248,31 @@
         }
 
         document.addEventListener("keydown", function(e) {
+
             e.preventDefault(); // 기본 키 동작 방지 (예: Ctrl+C가 복사하는 것을 방지)
             if (start===false) return;// 게임이 시작되지 않았으면 무시
-    
+            
+            let currentInput = [];// 현재 입력 배열
+            if (e.ctrlKey) currentInput.push("Ctrl");//push는 배열에 추가
+            if (e.shiftKey) currentInput.push("Shift");
+            if (e.altKey) currentInput.push("Alt");
+            if (e.metaKey) currentInput.push("Windows");
+
+            const modifiers = ["Control", "Shift", "Alt", "Meta"];
+            if (!modifiers.includes(e.key)) { // 누른 키가 Ctrl, Shift, Alt, Meta 중 하나가 아니면  
+                currentInput.push(e.key.toUpperCase());
+            }
+            document.getElementById("currentInput").innerText = "현재 입력: " + currentInput.join(" + ");// 현재 입력 표시
+            
+            let pressedKeys = [];// 누른 키 배열
+
             if (e.key === "Control") return;// Ctrl 키 자체는 무시
             if (e.key === "Shift") return;// Shift 키 자체는 무시
             if (e.key === "Alt") return;// Alt 키 자체는 무시
+            if (e.key === "Meta") return;// Meta(윈도우) 키 자체는 무시
 
             let q = currentQuestion;//현재 문제
 
-            let pressedKeys = [];// 누른 키 배열
             if (e.ctrlKey) pressedKeys.push("control");// Ctrl 키가 눌렸는지 확인
             if (e.altKey) pressedKeys.push("alt");// Alt 키가 눌렸는지 확인
             if (e.shiftKey) pressedKeys.push("shift");// Shift 키가 눌렸는지 확인
@@ -252,13 +291,32 @@
 
             }else {
                 document.getElementById("time").style.color = wrongColor;
-                document.getElementById("time").innerText = "오답";
+                document.getElementById("time").innerText = "오답\n정답: " + getAnswerText(currentQuestion);
                 clearInterval(timerId);// 타이머 멈춤
                 start = false;
+
+                wrongQuestions.push({// 틀린 문제 배열에 추가
+                    question: currentQuestion.q,
+                    userInput: pressedKeys.join(" + "),
+                    answer: currentQuestion.keys.join(" + ")
+                })
+
                 setTimeout(() => {
                     nextQuestion();// 다음 문제
-                }, 1000);
+                }, 2000);
             }
+        });
+
+        function getAnswerText(q){
+            return q.keys.join(" + ");
+        }
+
+        document.addEventListener("keyup", function(e) {// 키를 뗄 때
+            pressedKeys = pressedKeys.filter(// 누른 키 배열에서 뗀 키 제거
+                key => key !== e.key
+            );
+
+            document.getElementById("currentInput").innerText = "현재 입력: " + pressedKeys.join(" + ");
         });
 
         function result() {
@@ -278,6 +336,24 @@
                 document.getElementById("grade").style.color = wrongColor;
                 document.getElementById("grade").innerText = "TRY AGAIN";
             }
+
+            let reviewHTML = "<h2>복습</h2>";
+            reviewHTML += "<hr>";
+
+            for (let wrong of wrongQuestions) {// 틀린 문제마다 복습 내용 추가
+                reviewHTML += "<div class='reviewItem'>";
+                reviewHTML += "<h3><b>문제:</b> " + wrong.question + "</h3>";
+                reviewHTML += "<h3><b>내 입력:</b> " + wrong.userInput + "</h3>";
+                reviewHTML += "<h3><b>정답:</b> " + wrong.answer + "</h3>";
+                reviewHTML += "</div>";
+                reviewHTML += "<hr>";
+
+                if (wrongQuestions.length === 0) {
+                    reviewHTML += "<h2>전부 맞혔습니다!</h2>";
+                }
+            }
+
+            document.getElementById("review").innerHTML = reviewHTML;
         }
 
         function showScreen(screenId) {
@@ -302,6 +378,7 @@
                 q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
             );
             score = 0; // 점수 초기화
+            wrongQuestions = [];
             showScreen("gameScreen"); // 게임 화면 표시
             startQuestion(); // 문제 시작
         });
@@ -311,10 +388,10 @@
                 q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
             );
             score = 0; // 점수 초기화
+            wrongQuestions = [];
             showScreen("menu"); // 메뉴 화면 표시
         });
 
     </script>
 </body>
 </html>
-<!--저장 확인용-->
