@@ -217,6 +217,7 @@
             questions.splice(randomIndex, 1);//문제 배열에서 출제된 문제 제거
             document.getElementById("score").innerText = score + "점";
             startTimer();// 타이머 시작
+            document.getElementById("currentInput").innerText = "현재 입력: " + formatKeys(pressedKeys);
             start = true;
         }
 
@@ -280,7 +281,8 @@
             if (!modifiers.includes(e.key)) { // 누른 키가 Ctrl, Shift, Alt, Meta 중 하나가 아니면  
                 currentInput.push(e.key.toUpperCase());
             }
-            document.getElementById("currentInput").innerText = "현재 입력: " + currentInput.join(" + ");// 현재 입력 표시
+            document.getElementById("currentInput").innerText = "현재 입력: " + formatKeys(currentInput);// 현재 입력 표시
+            let lastInput = [...currentInput];// 마지막 입력 저장
             
             let pressedKeys = [];// 누른 키 배열
 
@@ -304,37 +306,36 @@
                 score++;// 점수 증가
                 start = false;
                 setTimeout(() => {
+                    document.getElementById("currentInput").innerText = lastInput
                     nextQuestion();// 다음 문제
                 }, 1000);
 
             }else {
                 document.getElementById("time").style.color = wrongColor;
-                document.getElementById("time").innerText = "오답\n정답: " + getAnswerText(currentQuestion);
+                document.getElementById("time").innerText = "오답\n정답: " + formatKeys(currentQuestion.keys);
                 clearInterval(timerId);// 타이머 멈춤
                 start = false;
 
                 wrongQuestions.push({// 틀린 문제 배열에 추가
                     question: currentQuestion.q,
-                    userInput: pressedKeys.join(" + "),
-                    answer: currentQuestion.keys.join(" + ")
+                    userInput: formatKeys(pressedKeys),
+                    answer: formatKeys(currentQuestion.keys)
                 })
 
                 setTimeout(() => {
+                    document.getElementById("currentInput").innerText = lastInput
                     nextQuestion();// 다음 문제
                 }, 2000);
             }
         });
-
-        function getAnswerText(q){
-            return q.keys.join(" + ");
-        }
 
         document.addEventListener("keyup", function(e) {// 키를 뗄 때
             pressedKeys = pressedKeys.filter(// 누른 키 배열에서 뗀 키 제거
                 key => key !== e.key
             );
 
-            document.getElementById("currentInput").innerText = "현재 입력: " + pressedKeys.join(" + ");
+            if (start === false) return;// 게임이 시작되지 않았으면 무시
+            document.getElementById("currentInput").innerText = "현재 입력: " + formatKeys(pressedKeys);
         });
 
         function result() {
@@ -360,9 +361,9 @@
 
             for (let wrong of wrongQuestions) {// 틀린 문제마다 복습 내용 추가
                 reviewHTML += "<div class='reviewItem'>";
-                reviewHTML += "<h3><b>문제:</b> " + wrong.question + "</h3>";
-                reviewHTML += "<h3><b>내 입력:</b> " + wrong.userInput + "</h3>";
-                reviewHTML += "<h3><b>정답:</b> " + wrong.answer + "</h3>";
+                reviewHTML += "<h3><b>문제:</b> " + formatKeys(wrong.question) + "</h3>";
+                reviewHTML += "<h3><b>내 입력:</b> " + formatKeys(wrong.userInput) + "</h3>";
+                reviewHTML += "<h3><b>정답:</b> " + formatKeys(wrong.answer) + "</h3>";
                 reviewHTML += "</div>";
                 reviewHTML += "<hr>";
 
@@ -379,6 +380,23 @@
             document.getElementById("gameScreen").style.display = "none";
             document.getElementById("endScreen").style.display = "none";
             document.getElementById(screenId).style.display = "block";
+        }
+
+        function formatKeys(keys) {
+            let result = []
+
+            for (let key of keys) {
+                if (key === "control") result.push("Ctrl");
+                else if (key === "alt") result.push("Alt");
+                else if (key === "shift") result.push("Shift");
+                else if (key === "meta") result.push("Windows");
+                else if (key === "arrowleft") result.push("←");
+                else if (key === "arrowright") result.push("→");
+                else if (key === "ARROWLEFT") result.push("←");
+                else if (key === "ARROWRIGHT") result.push("→");
+                else result.push(key.toUpperCase());
+            }
+            return result.join(" + ");
         }
                 
         document.getElementById("startButton").addEventListener("click", function() {// 시작 버튼 클릭 시
@@ -406,7 +424,7 @@
 
             for (let q of categoryQuestions) {
                 studyHTML += "<h3><b>문제:</b> " + q.q + "</h3>";
-                studyHTML += "<h3><b>정답:</b> " + q.keys.join(" + ") + "</h3>";
+                studyHTML += "<h3><b>정답:</b> " + formatKeys(q.keys) + "</h3>";
                 studyHTML += "<hr>";
             }
             document.getElementById("studyList").innerHTML = studyHTML;
