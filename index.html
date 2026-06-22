@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- -->
+<!DOCTYPE html><!-- 키보드 UT 오류 고쳐-->
 <html>
 <head>
     <meta charset="UTF-8">
@@ -19,25 +19,25 @@
         padding:10px 40px 40px 40px;
         border-radius:20px;
         text-align:center; /* 텍스트 중앙 정렬 */
-        box-shadow: 0px 0px 20px rgba(0,0,0,0.4);
+        box-shadow: 0px 0px 20px #222;
     }
     h1{
-        color : rgb(211, 218, 217);
+        color : #d3dad9;
         font-size: 60px;
         margin-bottom:10px;
     }
     h2{
-        color : rgb(211, 218, 217);
+        color : #d3dad9;
         font-size: 35px;
         margin-bottom:30px;
     }
     h3{
-        color : rgb(211, 218, 217);
+        color : #d3dad9;
         font-size: 25px;
     }
     button{
-        background-color: rgb(113, 90, 90);
-        color:rgb(211, 218, 217);
+        background-color: #715A5A;
+        color:#d3dad9;
         border:none;
         border-radius:12px;
         padding:15px 30px;
@@ -96,16 +96,52 @@
         max-height:250px;
         overflow-y:auto;
     }
-
     #studyScreen{
         display:none; /* 학습 화면 숨김 */
     }
-
     #studyList{
         max-height:300px;
         overflow-y:auto;
         text-align:left;
     }
+
+    #keyboard{
+        margin-top:30px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap:8px;
+    }
+    .keyboardRow{
+        display:flex;
+        gap:6px;
+    }
+    .key{
+        min-width:45px;
+        height:45px;
+        padding:10px;
+        border-radius:8px;
+        background-color:#37353E;
+        color:#d3dad9;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        box-shadow: 0 4px 0 #222;
+        transition:0.8s;
+        user-select:none;
+    }
+    .key.active{
+        transform:translateY(4px);
+        box-shadow: 0 0px 0 #222;
+        background-color:#715A5A;
+    }
+    .key.wide{
+        min-width:80px;
+    }
+    .key.space{
+        min-width:300px;
+    }
+
 
     </style>
 </head>
@@ -134,6 +170,8 @@
             <h2 id="question"></h2>
             <h3 id="score"></h3>
             <h3 id="currentInput">현재 입력</h3>
+
+            <div id="keyboard"></div>
         </div>
 
         <div id="endScreen"><!-- 게임 끝 화면 -->
@@ -170,20 +208,26 @@
             { q: "단어 단위로 왼쪽 이동", keys:["control","arrowleft"], category:"Windows" },
             { q: "단어 단위로 오른쪽 이동", keys:["control","arrowright"], category:"Windows" },
             { q: "단어 단위로 삭제", keys:["control","backspace"], category:"Windows" },
-            { q: "문서 맨 앞으로 이동", keys:["control","home"], category:"Windows" },
-            { q: "문서 맨 뒤로 이동", keys:["control","end"], category:"Windows" },
-            { q: "현재 줄 맨 앞으로 이동", keys:["home"], category:"Windows" },
-            { q: "현재 줄 맨 뒤로 이동", keys:["end"], category:"Windows" },
 
             { q: "터미널 화면 지우기", keys: ["control", "l"], category: "Linux" },
-            { q: "프로그램 강제 종료", keys: ["control", "q"], category: "Linux" },
-            { q: "터미널 종료", keys: ["control", "c"], category: "Linux" }
+            { q: "프로그램 강제 종료", keys: ["control", "c"], category: "Linux" }
         ];
         let questions = [];
         let totalQuestions = 0;
         let currentQuestion;//현재 문제
 
         let currentCategory = "";
+
+
+        const keyboardLayout =[
+            ["Escape","F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12"],
+            ["1","2","3","4","5","6","7","8","9","0","-","=","Backspace"],
+            ["Q","W","E","R","T","Y","U","I","O","P"],
+            ["A","S","D","F","G","H","J","K","L"],
+            ["shift","Z","X","C","V","B","N","M"],
+            ["Control","Meta","Alt","Space","ArrowLeft","ArrowRight"]];
+
+
 
         let start = false;//문제 출력
 
@@ -257,6 +301,8 @@
         }
             
         function nextQuestion() {// 다음 문제
+            pressedKeys = [];// 누른 키 배열 초기화
+            document.getElementById("currentInput").innerText = "현재 입력: " + formatKeys(pressedKeys);// 현재 입력 표시
             document.getElementById("score").innerText = score + "점";// 점수 화면에 표시
 
             if (questions.length > 0) {// 다음 문제가 있으면
@@ -268,7 +314,7 @@
 
         document.addEventListener("keydown", function(e) {
 
-            e.preventDefault(); // 기본 키 동작 방지 (예: Ctrl+C가 복사하는 것을 방지)
+            if (start) e.preventDefault(); // 기본 키 동작 방지 (예: Ctrl+C가 복사하는 것을 방지)
             if (start===false) return;// 게임이 시작되지 않았으면 무시
             
             let currentInput = [];// 현재 입력 배열
@@ -279,12 +325,10 @@
 
             const modifiers = ["Control", "Shift", "Alt", "Meta"];
             if (!modifiers.includes(e.key)) { // 누른 키가 Ctrl, Shift, Alt, Meta 중 하나가 아니면  
-                currentInput.push(e.key.toUpperCase());
+                currentInput.push(e.key.toLowerCase());
             }
             document.getElementById("currentInput").innerText = "현재 입력: " + formatKeys(currentInput);// 현재 입력 표시
             let lastInput = [...currentInput];// 마지막 입력 저장
-            
-            let pressedKeys = [];// 누른 키 배열
 
             if (e.key === "Control") return;// Ctrl 키 자체는 무시
             if (e.key === "Shift") return;// Shift 키 자체는 무시
@@ -327,6 +371,8 @@
                     nextQuestion();// 다음 문제
                 }, 2000);
             }
+
+            updateKeyboardUI();
         });
 
         document.addEventListener("keyup", function(e) {// 키를 뗄 때
@@ -336,6 +382,8 @@
 
             if (start === false) return;// 게임이 시작되지 않았으면 무시
             document.getElementById("currentInput").innerText = "현재 입력: " + formatKeys(pressedKeys);
+            
+            updateKeyboardUI();
         });
 
         function result() {
@@ -359,17 +407,19 @@
             let reviewHTML = "<h2>복습</h2>";
             reviewHTML += "<hr>";
 
-            for (let wrong of wrongQuestions) {// 틀린 문제마다 복습 내용 추가
+            if (wrongQuestions.length === 0) {
+                    reviewHTML += "<h2>전부 맞혔습니다!</h2>";
+
+            } else {
+                for (let wrong of wrongQuestions) {// 틀린 문제마다 복습 내용 추가
                 reviewHTML += "<div class='reviewItem'>";
-                reviewHTML += "<h3><b>문제:</b> " + formatKeys(wrong.question) + "</h3>";
-                reviewHTML += "<h3><b>내 입력:</b> " + formatKeys(wrong.userInput) + "</h3>";
-                reviewHTML += "<h3><b>정답:</b> " + formatKeys(wrong.answer) + "</h3>";
+                reviewHTML += "<h3><b>문제:</b> " + wrong.question + "</h3>";
+                reviewHTML += "<h3><b>내 입력:</b> " + wrong.userInput + "</h3>";
+                reviewHTML += "<h3><b>정답:</b> " + wrong.answer + "</h3>";
                 reviewHTML += "</div>";
                 reviewHTML += "<hr>";
-
-                if (wrongQuestions.length === 0) {
-                    reviewHTML += "<h2>전부 맞혔습니다!</h2>";
                 }
+                
             }
 
             document.getElementById("review").innerHTML = reviewHTML;
@@ -387,18 +437,58 @@
 
             for (let key of keys) {
                 if (key === "control") result.push("Ctrl");
-                else if (key === "alt") result.push("Alt");
-                else if (key === "shift") result.push("Shift");
-                else if (key === "meta") result.push("Windows");
-                else if (key === "arrowleft") result.push("←");
-                else if (key === "arrowright") result.push("→");
-                else if (key === "ARROWLEFT") result.push("←");
-                else if (key === "ARROWRIGHT") result.push("→");
-                else result.push(key.toUpperCase());
+                if (key === "alt") result.push("Alt");
+                if (key === "shift") result.push("Shift");
+                if (key === "meta") result.push("Windows");
+                if (key === "arrowleft") result.push("←");
+                if (key === "arrowright") result.push("→");
+                if (key === "backspace") result.push("Backspace");
+
+                result.push(key.toUpperCase());
             }
             return result.join(" + ");
         }
                 
+        function createKeyboard(){
+            let html = "";
+            for (let row of keyboardLayout) {
+
+                html += "<div class='keyboardRow'>";
+                for (let key of row) {
+                    let extraClass = "";
+                    if (key === "Control" || key === "Meta" || key === "Alt" || key === "Shift") {
+                        extraClass = "wide";
+                    } else if (key === "Space") {
+                        extraClass = "space";
+                    }
+                    html += "<div class='key " + extraClass + "' data-key='" + key.toLowerCase() + "'>";
+                    html += key;
+                    html += "</div>";
+                }
+
+                html += "</div>"
+            }
+            document.getElementById("keyboard").innerHTML = html;
+        }
+
+        function updateKeyboardUI(){
+            document.querySelectorAll(".key").forEach(key=>{
+                key.classLsit.remove("active")
+            });
+
+            for(let pressed of pressedKeys){
+                let keyElement = document.querySelector(
+                    "[data-keys='" + pressed + "']"
+                );
+
+                if(keyElement){
+                    keyElement.classList.add("active");
+                }
+            }
+        }
+
+        createKeyboard();
+
         document.getElementById("startButton").addEventListener("click", function() {// 시작 버튼 클릭 시
             if(currentCategory === "") {
                 alert("카테고리를 선택해주세요!");// 카테고리 선택 안했을 때 경고창
@@ -406,6 +496,7 @@
             }
             
             showScreen("gameScreen"); // 게임 화면 표시
+            createKeyboard();
             startQuestion(); // 문제 시작
         });
 
