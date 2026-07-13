@@ -1,4 +1,4 @@
-<!DOCTYPE html><!--(d:\박준성\포트폴리오\웹_연습\7._문제_여러게_만들기\index.html:110:13)-->
+<!DOCTYPE html><!--스페이스바 눌림 인식 실패 -->
 <html>
 <head>
     <meta charset="UTF-8">
@@ -109,7 +109,7 @@
     }
     #learnResult{/**/
         color : #d3dad9;
-        font-size: 35px;
+        font-size: 30px;
         margin-bottom:30px;
     }
     #backMenu{
@@ -117,21 +117,20 @@
     }
 
     #keyboard{
-        margin-top:15px;
-        margin-bottom:5px;
         display:flex;
         flex-direction:column;
         align-items:center;
-        gap:4px;
+        gap:6px;
+        margin-top:10px;
+        margin-bottom:0;
     }
     .keyboardRow{
         display:flex;
-        gap:4px;
-        margin:0;
+        gap:5px;
     }
-    .key{/*키보드 모양좀 수정해*/
-        min-width:45px;
-        height:40px;
+    .key{/**/
+        min-width:42px;
+        height:42px;
         padding:4px;
         border-radius:6px;
         background-color:#44444e;
@@ -141,19 +140,29 @@
         align-items:center;
         font-weight: bold;
         font-size: 14px;
-        box-shadow: 0 3px 0 #222;
+        box-shadow: 0 4px 0 #2b2b30;
         transition:0.08s;
     }
     .key.active{
-        transform:translateY(3px);
-        box-shadow: 0 0px 0 #222;
+        transform:translateY(4px);
+        box-shadow: none;
         background-color: #836868;
     }
     .key.wide{
-        min-width:60px;
+        min-width:75px;
     }
+    .key.extraWide{
+        min-width:105px;
+    } 
     .key.space{
-        min-width:180px;
+        min-width:280px;
+    }
+
+    .key.correct{
+        background-color: #16C47F;
+    }
+    .key.wrong{
+        background-color: #F93827;
     }
 
 
@@ -239,11 +248,10 @@
         const keyboardLayout =[
             ["Escape","F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12"],
             ["1","2","3","4","5","6","7","8","9","0","-","=","Backspace"],
-            ["Tap","Q","W","E","R","T","Y","U","I","O","P"],
-            ["Caps Lock","A","S","D","F","G","H","J","K","L"],
-            ["shift","Z","X","C","V","B","N","M",",",".","/"],
-            ["Control","Window","Alt","Space","ArrowLeft","ArrowRight"]];
-
+            ["Tab","Q","W","E","R","T","Y","U","I","O","P"],
+            ["capslock","A","S","D","F","G","H","J","K","L"],
+            ["Shift","Z","X","C","V","B","N","M",",",".","/"],
+            ["Control","meta","Alt","space","arrowleft","arrowright"]];
 
 
         let start = false;//문제 출력
@@ -363,21 +371,28 @@
             if (e.shiftKey) currentInput.push("Shift");
             if (e.altKey) currentInput.push("Alt");
             if (e.metaKey) currentInput.push("Windows");
+            if (e.key === " ") currentInput.push("space");
 
-            const modifiers = ["Control", "Shift", "Alt", "Meta"];
+            const modifiers = ["Control", "Shift", "Alt", "Meta", " "]; // 수정자 키 목록 
             if (!modifiers.includes(e.key)) { // 누른 키가 Ctrl, Shift, Alt, Meta 중 하나가 아니면  
                 currentInput.push(e.key.toLowerCase());
             }
             document.getElementById("currentInput").innerText = "현재 입력: " + formatKeys(currentInput);// 현재 입력 표시
             let lastInput = [...currentInput];// 마지막 입력 저장
             
-            if (!pressedKeys.includes(e.key.toLowerCase())){
-                pressedKeys.push(e.key.toLowerCase());// 누른 키 추가
+            let key = e.key.toLowerCase();
+            if(key === " ") {
+                key = "space";
+            }
+
+            if (!pressedKeys.includes(key)){
+                pressedKeys.push(key);// 누른 키 추가
             }
             
             updateKeyboardUI()
             if (e.key === "Control" || e.key === "Shift" || e.key === "Alt" || e.key === "Meta") return
 
+            console.log("Pressed keys:", pressedKeys);
             // 정답 체크
             if (currentMode === "game") {
                 if (JSON.stringify(pressedKeys) === JSON.stringify(currentQuestion.keys)) { // 누른 키와 현재 문제 키 비교, 그냥 비교하면 false나오므로 JSON.stringify로 문자열로 변환해서 비교 
@@ -417,8 +432,13 @@
         });
 
         document.addEventListener("keyup", function(e) {// 키를 뗄 때
+            let key = e.key.toLowerCase();
+            if(key === " ") {
+                key = "space";
+            }
+            
             pressedKeys = pressedKeys.filter(// 누른 키 배열에서 뗀 키 제거
-                key => key !== e.key.toLowerCase()
+                key => key !== key
             );
 
             if (start === false) return;// 게임이 시작되지 않았으면 무시
@@ -498,9 +518,12 @@
                 html += "<div class='keyboardRow'>";
                 for (let key of row) {
                     let extraClass = "";
-                    if (key === "Control" || key === "Meta" || key === "Alt" || key === "Shift") {
+                    if (key === "Control" || key === "Window" || key === "Alt" || key=="Caps Lock" || key=="Tab") {
                         extraClass = "wide";
-                    } else if (key === "Space") {
+                    } else if (key=="Shift" || key=="Backspace") {
+                        extraClass = "extraWide";
+                        
+                    } else if (key === "space") {
                         extraClass = "space";
                     }
                     html += "<div class='key " + extraClass + "' data-key='" + key.toLowerCase() + "'>";
@@ -514,19 +537,28 @@
         }
 
         function updateKeyboardUI(){
+
             let allkeys = document.querySelectorAll(".key");
 
             for(let keyBox of allkeys){
                 keyBox.classList.remove("active")
+                keyBox.classList.remove("correct")
+                keyBox.classList.remove("wrong")
             }
 
             for(let pressed of pressedKeys){
-                let pressedKey = document.querySelector(
-                    "[data-key='" + pressed + "']"
-                );
+                let pressedKey = document.querySelector("[data-key='" + pressed + "']");
 
-                if(pressedKey){
-                    pressedKey.classList.add("active");
+                if(!pressedKey) continue;
+
+                pressedKey.classList.add("active");
+
+                if (currentMode === "game" && currentQuestion) {
+                    if(currentQuestion.keys.includes(pressed)){
+                        pressedKey.classList.add("correct");
+                    }else{
+                        pressedKey.classList.add("wrong");
+                    }
                 }
             }
         }
