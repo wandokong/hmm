@@ -1,5 +1,5 @@
-<!DOCTYPE html><!--스페이스바 눌림 인식 실패 -->
-<html>
+<!DOCTYPE html><!-- 한번에 들어 설명한다 카테고리 추가하고 그것에 맞게 카테고리 바꿀수 있게 버튼 추가하고 카테고리별 문제 개수 gpt에 있으니까 물어봐서 추가하고 되는건지 안되는 건지 확인하고 난이도 넣을수 있으면 넣고 리드미에 카테고리 추가 라고 해놓을테니까 너는 카테고리 문제 추가 라고 써-->
+<html><!-- 윈도우 단축키 추가해-->
 <head>
     <meta charset="UTF-8">
     <title>퀴즈</title>
@@ -159,10 +159,10 @@
     }
 
     .key.correct{
-        background-color: #16C47F;
+        background-color: #73976A;
     }
     .key.wrong{
-        background-color: #F93827;
+        background-color: #BD4444;
     }
 
 
@@ -214,26 +214,34 @@
         let time = 10;
         let timerId;
 
-        let score = 0;//문제 목록
+        let score = 0;//문제 은행 : windows, browser, vs code, edit, office, linux
         
         let originalQuestions = [
-            { q: "복사", keys: ["control", "c"], category: "Windows" },
-            { q: "붙여넣기", keys: ["control", "v"], category: "Windows" },
-            { q: "되돌리기", keys: ["control", "z"], category: "Windows" },
-            { q: "잘라내기", keys: ["control", "x"], category: "Windows" },
-            { q: "전체 선택", keys: ["control", "a"], category: "Windows" },
-            { q: "새로고침", keys: ["f5"], category: "Windows" },
-            { q: "인쇄", keys:["control","p"], category:"Windows" },
-            { q: "찾기", keys:["control","f"], category:"Windows" },
-            { q: "저장", keys:["control","s"], category:"Windows" },
-            { q: "열기", keys:["control","o"], category:"Windows" },
-            { q: "전체화면", keys:["f11"], category:"Windows" },
-            { q: "파일 이름 바꾸기", keys:["f2"], category:"Windows" },
-            { q: "우클릭 메뉴", keys:["shift","f10"], category:"Windows" },
-            { q: "다시 실행 단축키", keys:["control","y"], category:"Windows" },
-            { q: "단어 단위로 왼쪽 이동", keys:["control","arrowleft"], category:"Windows" },
-            { q: "단어 단위로 오른쪽 이동", keys:["control","arrowright"], category:"Windows" },
-            { q: "단어 단위로 삭제", keys:["control","backspace"], category:"Windows" },
+            { q: "전체화면", keys:["f11"], category:"browser" },
+            { q: "파일 이름 바꾸기", keys:["f2"], category:"browser" },
+            { q: "우클릭 메뉴", keys:["shift","f10"], category:"browser" },
+            { q: "화면 확대" , keys:["control","+"], category:"browser" },
+            { q: "화면 축소", keys:["control","-"], category:"browser" },
+            { q: "화면 원래대로", keys:["control","0"], category:"browser" },
+            { q: "다운로드 목록", keys:["control","j"], category:"browser" },
+            { q: "인터넷 기록 삭제 창 이동", keys:["control","shift","delete"], category:"browser" },
+
+            { q: "복사", keys: ["control", "c"], category: "edit" },
+            { q: "붙여넣기", keys: ["control", "v"], category: "edit" },
+            { q: "되돌리기", keys: ["control", "z"], category: "edit" },
+            { q: "잘라내기", keys: ["control", "x"], category: "edit" },
+            { q: "전체 선택", keys: ["control", "a"], category: "edit" },
+            { q: "새로고침", keys: ["f5"], category: "browser" },
+            { q: "인쇄", keys:["control","p"], category:"edit" },
+            { q: "찾기", keys:["control","f"], category:"edit" },
+            { q: "저장", keys:["control","s"], category:"edit" },
+            { q: "열기", keys:["control","o"], category:"edit" },
+            { q: "다시 실행 단축키", keys:["control","y"], category:"edit" },
+            { q: "바꾸기", keys:["control","h"], category:"edit" },
+            { q: "이동", keys:["control","g"], category:"edit" },
+            { q: "단어 단위로 왼쪽 이동", keys:["control","arrowleft"], category:"edit" },
+            { q: "단어 단위로 오른쪽 이동", keys:["control","arrowright"], category:"edit" },
+            { q: "단어 단위로 삭제", keys:["control","backspace"], category:"edit" },
 
             { q: "터미널 화면 지우기", keys: ["control", "l"], category: "Linux" },
             { q: "프로그램 강제 종료", keys: ["control", "c"], category: "Linux" }
@@ -384,6 +392,9 @@
             if(key === " ") {
                 key = "space";
             }
+            if (e.shiftKey && key ==="+"){
+                key = "+";
+            }   
 
             if (!pressedKeys.includes(key)){
                 pressedKeys.push(key);// 누른 키 추가
