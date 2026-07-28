@@ -447,10 +447,10 @@
             if (start===false) return;// 게임이 시작되지 않았으면 무시
             
             let currentInput = [];// 현재 입력 배열
-            if (e.ctrlKey) currentInput.push("Ctrl");//push는 배열에 추가
+            if (e.ctrlKey) currentInput.push("ctrl");//push는 배열에 추가
             if (e.shiftKey) currentInput.push("shift");
-            if (e.altKey) currentInput.push("Alt");
-            if (e.metaKey) currentInput.push("Windows");
+            if (e.altKey) currentInput.push("alt");
+            if (e.metaKey) currentInput.push("windows");
             if (e.key === " ") currentInput.push("space");
             if (e.key === "printscreen") currentInput.push("PrintScreen");
 
@@ -605,10 +605,10 @@
             let result = []
 
             for (let key of keys) {
-                if (key === "control") result.push("Ctrl");
+                if (key === "ctrl") result.push("Ctrl");
                 else if (key === "alt") result.push("Alt");
                 else if (key === "shift") result.push("Shift");
-                else if (key === "meta") result.push("Windows");
+                else if (key === "windows") result.push("Windows");
                 else if (key === "arrowleft") result.push("←");
                 else if (key === "arrowright") result.push("→");
                 else if (key === "backspace") result.push("Backspace");
