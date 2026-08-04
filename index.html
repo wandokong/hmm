@@ -1,4 +1,4 @@
-<!DOCTYPE html><!---->
+<!DOCTYPE html><!-- 틀린문제만 풀기 하는데 문제 생김 792번줄-->
 <html>
 <head>
     <meta charset="UTF-8">
@@ -165,6 +165,12 @@
         background-color: #BD4444;
     }
 
+    .choice.correct{
+        background-color: #73976A;
+    }
+    .choice.wrong{
+        background-color: #BD4444;
+    }
 
     </style>
 </head>
@@ -206,6 +212,7 @@
             <div id="review"></div>
             <button id="restart">다시 시작</button>
             <button id="menuButton">메뉴로</button>
+            <button id="WrongQuestionsRestart">틀린문제만</button>
         </div>
     </div>
 
@@ -370,7 +377,7 @@
             let html = "";
             for (let choice of choices) {
                 let isCorrect = (choice === currentQuestion);
-                html += `<button class="choice" onclick="checkChoice(${isCorrect}, '${formatKeys(choice.keys)}')">${formatKeys(choice.keys)}</button>`;
+                html += `<button class="choice" onclick="checkChoice(${isCorrect}, this, '${formatKeys(choice.keys)}')">${formatKeys(choice.keys)}</button>`;
             }
             document.getElementById("choices").innerHTML = html;
         }
@@ -429,9 +436,8 @@
                     start = false;
 
                     wrongQuestions.push({// 틀린 문제 배열에 추가
-                        question: currentQuestion.q,
-                        userInput: "입력 없음",
-                        answer: currentQuestion.keys.join(" + ")
+                        ...currentQuestion,
+                        userInput: "입력 없음"
                     })
 
                     setTimeout(() => {
@@ -495,17 +501,16 @@
                     document.getElementById("time").innerText = "오답";
                     clearInterval(timerId);// 타이머 멈춤
                     start = false;
-
+                    
                     wrongQuestions.push({// 틀린 문제 배열에 추가
-                        question: currentQuestion.q,
-                        userInput: formatKeys(pressedKeys),
-                    answer: formatKeys(currentQuestion.keys)
+                        ...currentQuestion,
+                        userInput: formatKeys(pressedKeys)
                     });
 
                     setTimeout(() => {
                         document.getElementById("currentInput").innerText = lastInput
                         nextQuestion();// 다음 문제
-                    }, 2000);
+                    }, 1000);
                 }
             }
 
@@ -531,27 +536,32 @@
             updateKeyboardUI();
         });
 
-        function checkChoice(correct, userAnswer) {
+        function checkChoice(correct, button, userAnswer) {
             if(start === false) return;
             start = false;
 
             if(correct){
+                button.classList.add("correct");
                 document.getElementById("time").style.color = correctColor;
                 document.getElementById("time").innerText = "정답";
 
                 score++;
             }else{
+                button.classList.add("wrong");
                 document.getElementById("time").style.color = wrongColor;
                 document.getElementById("time").innerText="오답";
 
-                wrongQuestions.push({question: currentQuestion.q, userInput: userAnswer, answer: formatKeys(currentQuestion.keys)});
+                wrongQuestions.push({               
+                    ...currentQuestion, 
+                    userInput: userAnswer
+                });
             }
             clearInterval(timerId);// 타이머 멈춤
             start = false;
 
             setTimeout(() => {
                 nextQuestion();// 다음 문제
-            }, 1000);
+            }, 800);
         }
 
         function result() {
@@ -564,27 +574,33 @@
             let percent = score / totalQuestions * 100;// 점수 백분율 계산
             if(percent === 100){
                 document.getElementById("grade").style.color = correctColor;
-                document.getElementById("grade").innerText = "PERFECT";
-            }else if(percent >= 70){
+                document.getElementById("grade").innerText = "등급 : A";
+            }else if(percent >= 90){
                 document.getElementById("grade").style.color = timeoutColor;
-                document.getElementById("grade").innerText = "GOOD";
+                document.getElementById("grade").innerText = "등급 : B";
+            }else if(percent >= 80){
+                document.getElementById("grade").style.color = timeoutColor;
+                document.getElementById("grade").innerText = "등급 : C";
+            }else if(percent >= 70){
+                document.getElementById("grade").style.color = wrongColor;
+                document.getElementById("grade").innerText = "등급 : D";    
             }else{
                 document.getElementById("grade").style.color = wrongColor;
-                document.getElementById("grade").innerText = "TRY AGAIN";
+                document.getElementById("grade").innerText = "등급 : F";
             }
 
             let reviewHTML = "<h2>복습</h2>";
-            reviewHTML += "<hr>";
 
             if (wrongQuestions.length === 0) {
                     reviewHTML += "<h2>전부 맞혔습니다!</h2>";
 
             } else {
+                reviewHTML += "<hr>";
                 for (let wrong of wrongQuestions) {// 틀린 문제마다 복습 내용 추가
                 reviewHTML += "<div class='reviewItem'>";
-                reviewHTML += "<h3><b>문제:</b> " + wrong.question + "</h3>";
+                reviewHTML += "<h3><b>문제:</b> " + wrong.q + "</h3>";
                 reviewHTML += "<h3><b>내 입력:</b> " + wrong.userInput + "</h3>";
-                reviewHTML += "<h3><b>정답:</b> " + wrong.answer + "</h3>";
+                reviewHTML += "<h3><b>정답:</b> " + formatKeys(wrong.keys) + "</h3>";
                 reviewHTML += "</div>";
                 reviewHTML += "<hr>";
                 }
@@ -608,11 +624,13 @@
                 if (key === "ctrl") result.push("Ctrl");
                 else if (key === "alt") result.push("Alt");
                 else if (key === "shift") result.push("Shift");
-                else if (key === "windows") result.push("Windows");
+                else if (key === "meta") result.push("Windows");
                 else if (key === "arrowleft") result.push("←");
                 else if (key === "arrowright") result.push("→");
                 else if (key === "backspace") result.push("Backspace");
                 else if (key === "delete") result.push("Delete");
+                else if (key === "tab") result.push("Tab");
+                else if (key === "capslock") result.push("Caps Lock");
 
                 else result.push(key.toUpperCase());
             }
@@ -766,6 +784,28 @@
             showScreen("menu"); // 메뉴 화면 표시
         });
 
+        document.getElementById("WrongQuestionsRestart").addEventListener("click", function() { // 틀린 문제만 다시 시작 버튼 클릭 시
+            if (wrongQuestions.length === 0) {
+                alert("틀린 문제가 없습니다!");// 틀린 문제 없을 때 경고창
+                return;
+            }
+// 문제 생김
+            questions = [...wrongQuestions]; // 틀린 문제만 다시 시작
+            console.log("Wrong questions:", wrongQuestions[0]);
+            score = 0; // 점수 초기화
+            wrongQuestions = [];
+            currentMode = "game";
+            showScreen("gameScreen"); // 게임 화면 표시
+            if(currentCategory === "windows"){
+                gameType = "choice";
+                document.getElementById("keyboard").style.display = "none";
+            }else{
+                gameType = "subjective";
+                createKeyboard();
+                document.getElementById("keyboard").style.display = "flex";
+            }
+            startQuestion(); // 문제 시작
+        });
     </script>
 </body>
 </html>
