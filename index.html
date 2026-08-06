@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- 틀린문제만 풀기 하는데 문제 생김 792번줄-->
+<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림, 설정부분에 화면 UI는 대충 만들어 졌으니 세팅한것에 따라 실제 게임에 영향이 가도록 설계 -->
 <html>
 <head>
     <meta charset="UTF-8">
@@ -51,6 +51,10 @@
     button:hover{
         transform:scale(1.05);
         background-color:#836868;
+    }
+    label{
+        color:#d3dad9;
+        font-size:18px;
     }
     #gameScreen{
         display:none;/* 게임 화면 숨김 */
@@ -114,6 +118,52 @@
     }
     #backMenu{
         display:inline-block;
+    }
+    #settingScreen{
+        display:none; /* 설정 화면 숨김 */
+        width: 100%;
+        max-width: 500px;
+        margin : auto;
+        text-align: center;
+    }
+    .settingBox{
+        background: #44444e;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .settingItem{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin : 18px 0;
+        font-size: 18px;
+    }
+    .settingButton{
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 25px;
+    }
+    .settingBtn{
+        padding: 10px 23px;
+        border : none;
+        border-radius: 8px;
+        background: #715A5A;
+        color: #d3dad9;
+        cursor: pointer;
+        transition: 2s;
+    }
+    .settingBtn:hover{
+        background: #836868;
+    }
+    .settingOption{
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+    }
+    .settingOption label{
+        cursor: pointer;
     }
 
     #keyboard{
@@ -188,8 +238,39 @@
             <h1>단축키 퀴즈</h1>
             <button id="studyButton">학습하기</button>
             <button id="startButton">문제 시작</button>
+            <button id="settingButton" onclick="loadSettings(), showScreen('settingScreen')">⚙ 설정</button>
         </div>
         
+        <div id="settingScreen"><!-- 설정 화면 -->
+            <h1>설정</h1>
+            <div class="settingBox">
+                <div class="settingItem">
+                    <label for="timerCheck">타이머 사용</label>
+                    <input type="checkbox" id="timerCheck" checked>
+                </div>
+                <div class="settingItem">
+                    <label>문제 수</label>
+                    <div class="settingOption">
+                        <label><input type="radio" name="questionCount" value="10"> 10문제</label>
+                        <label><input type="radio" name="questionCount" value="30" checked> 30문제</label>
+                        <label><input type="radio" name="questionCount" value="50"> 50문제</label>
+                    </div>
+                </div>
+                <div class="settingItem">
+                    <label>난이도</label>
+                    <div class="settingOption">
+                        <label><input type="radio" name="difficulty" value="easy"> 쉬움</label>
+                        <label><input type="radio" name="difficulty" value="normal" checked> 보통</label>
+                        <label><input type="radio" name="difficulty" value="hard"> 어려움</label>
+                    </div>
+                </div>
+            </div>
+            <div class="settingButton">
+                <button class="settingBtn" onclick="saveSettings()">저장</button>
+                <button class="settingBtn" onclick="showScreen('menu')">뒤로가기</button>
+            </div>
+        </div>
+
         <div id="studyScreen"><!-- 학습 화면-->
             <h1>학습하기</h1>
             <div id="studyList"></div>
@@ -284,11 +365,12 @@
 
         const keyboardLayout =[
             ["Escape","F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12"],
-            ["1","2","3","4","5","6","7","8","9","0","-","=","Backspace"],
-            ["Tab","Q","W","E","R","T","Y","U","I","O","P"],
-            ["capslock","A","S","D","F","G","H","J","K","L"],
+            ["1","2","3","4","5","6","7","8","9","0","-","=","\\","Backspace"],
+            ["Tab","Q","W","E","R","T","Y","U","I","O","P","[","]","Delete"],
+            ["capslock","A","S","D","F","G","H","J","K","L",";","'","Enter"],
             ["Shift","Z","X","C","V","B","N","M",",",".","/"],
-            ["Control","meta","Alt","space","arrowleft","arrowright"]];
+            ["Control","meta","Alt","space","arrowleft","arrowright"]
+        ];
 
 
         let start = false;//문제 출력
@@ -303,6 +385,12 @@
 
         let currentMode = "menu" // menu, game, learning 으로 구분
         let gameType = "subjective" // 객관식 choice, 주관식 subjective 구분
+
+        let settings = {
+            timer : true,
+            questionCount : 30,
+            difficulty : "normal"
+        };
 
         document.getElementById("keyboard").style.display = "none";// 키보드 숨기기
 
@@ -324,6 +412,20 @@
                 btn.classList.remove("selectedCategory"); // 모든 버튼에서 선택된 클래스 제거
             });
             button.classList.add("selectedCategory"); // 선택한 버튼에 선택된 클래스 추가
+        }
+        function loadSettings(){
+            document.getElementById("timerCheck").checked = settings.timer;
+            document.querySelector(`input[name="questionCount"][value="${settings.questionCount}"]`).checked = true;// 저장된 상태로 바꿈
+            document.querySelector(`input[name="difficulty"][value="${settings.difficulty}"]`).checked = true;// 저장된 상태로 바꿈
+        }
+
+
+        function saveSettings(){
+            settings.timer = document.getElementById("timerCheck").checked;
+            settings.questionCount = Number(document.querySelector('input[name="questionCount"]:checked').value);
+            settings.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+            showScreen("menu");
+            console.log(settings);
         }
 
         function startQuestion() {
@@ -614,6 +716,8 @@
             document.getElementById("menu").style.display = "none";
             document.getElementById("gameScreen").style.display = "none";
             document.getElementById("endScreen").style.display = "none";
+            document.getElementById("studyScreen").style.display = "none";
+            document.getElementById("settingScreen").style.display = "none";
             document.getElementById(screenId).style.display = "block";
         }
 
@@ -647,7 +751,7 @@
                     let extraClass = "";
                     if (key === "Control" || key === "Window" || key === "Alt" || key=="Caps Lock" || key=="Tab") {
                         extraClass = "wide";
-                    } else if (key=="Shift" || key=="Backspace") {
+                    } else if (key=="Shift" || key=="Backspace" || key=="Enter") {
                         extraClass = "extraWide";
                         
                     } else if (key === "space") {
