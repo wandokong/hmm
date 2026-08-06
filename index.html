@@ -589,12 +589,11 @@
                 document.getElementById("grade").innerText = "등급 : F";
             }
 
-            let reviewHTML = "<h2>복습</h2>";
-
             if (wrongQuestions.length === 0) {
                     reviewHTML += "<h2>전부 맞혔습니다!</h2>";
 
             } else {
+                let reviewHTML = "<h2>복습</h2>";
                 reviewHTML += "<hr>";
                 for (let wrong of wrongQuestions) {// 틀린 문제마다 복습 내용 추가
                 reviewHTML += "<div class='reviewItem'>";
@@ -759,6 +758,7 @@
             questions = originalQuestions.filter(
                 q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
             );
+            totalQuestions = questions.length; // 총 문제 수 업데이트
             score = 0; // 점수 초기화
             wrongQuestions = [];
             currentMode = "game";
@@ -789,9 +789,9 @@
                 alert("틀린 문제가 없습니다!");// 틀린 문제 없을 때 경고창
                 return;
             }
-// 문제 생김
+
             questions = [...wrongQuestions]; // 틀린 문제만 다시 시작
-            console.log("Wrong questions:", wrongQuestions[0]);
+            totalQuestions = questions.length; // 총 문제 수 업데이트
             score = 0; // 점수 초기화
             wrongQuestions = [];
             currentMode = "game";
