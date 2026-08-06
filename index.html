@@ -362,17 +362,17 @@
             let choices=[];
             choices.push(currentQuestion);
 
-            let windowsQuestions = originalQuestions.filter(q => q.category === "windows");
+            let windowsQuestions = originalQuestions.filter(q => q.category === "windows");// windows 카테고리 문제만 필터링
 
             while(choices.length < 5){
                 let random = windowsQuestions[Math.floor(Math.random() * windowsQuestions.length)];
                 
-                if (!choices.includes(random)) {
+                if (!choices.some(choice => choice.q === random.q)) {
                     choices.push(random);
                 }
             }
 
-            choices.sort(() => Math.random() - 0.5);
+            choices.sort(() => Math.random() - 0.5);// 배열 섞기
 
             let html = "";
             for (let choice of choices) {
@@ -589,11 +589,12 @@
                 document.getElementById("grade").innerText = "등급 : F";
             }
 
+            let reviewHTML = "";
             if (wrongQuestions.length === 0) {
                     reviewHTML += "<h2>전부 맞혔습니다!</h2>";
 
             } else {
-                let reviewHTML = "<h2>복습</h2>";
+                reviewHTML = "<h2>복습</h2>";
                 reviewHTML += "<hr>";
                 for (let wrong of wrongQuestions) {// 틀린 문제마다 복습 내용 추가
                 reviewHTML += "<div class='reviewItem'>";
@@ -630,6 +631,7 @@
                 else if (key === "delete") result.push("Delete");
                 else if (key === "tab") result.push("Tab");
                 else if (key === "capslock") result.push("Caps Lock");
+                else if (key === "printscreen") result.push("Print Screen");
 
                 else result.push(key.toUpperCase());
             }
