@@ -1,4 +1,4 @@
-<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림, 설정부분에 화면 UI는 대충 만들어 졌으니 세팅한것에 따라 실제 게임에 영향이 가도록 설계 -->
+<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림-->
 <html>
 <head>
     <meta charset="UTF-8">
@@ -405,7 +405,6 @@
             questions = originalQuestions.filter(
                 q => q.category === category // 선택한 카테고리에 맞는 문제로 필터링
             );
-            totalQuestions = questions.length; // 총 문제 수 업데이트
 
             let buttons = document.querySelectorAll(".categoryBtn");
             buttons.forEach(btn => {
@@ -413,12 +412,12 @@
             });
             button.classList.add("selectedCategory"); // 선택한 버튼에 선택된 클래스 추가
         }
+
         function loadSettings(){
             document.getElementById("timerCheck").checked = settings.timer;
             document.querySelector(`input[name="questionCount"][value="${settings.questionCount}"]`).checked = true;// 저장된 상태로 바꿈
             document.querySelector(`input[name="difficulty"][value="${settings.difficulty}"]`).checked = true;// 저장된 상태로 바꿈
         }
-
 
         function saveSettings(){
             settings.timer = document.getElementById("timerCheck").checked;
@@ -432,9 +431,10 @@
             start = true;
             currentMode = "game";
             
-            let randomIndex = Math.floor(Math.random() * questions.length);
+            let randomIndex = Math.floor(Math.random() * questions.length);// 랜덤 인덱스 생성 0~1까지 난수 생성후 문제수를 곱하고 올림
             currentQuestion = questions[randomIndex];
             questions.splice(randomIndex, 1);
+            settings.questionCount--;
 
             if(gameType === "subjective"){
 
@@ -815,7 +815,12 @@
                 q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
             );
 
-            totalQuestions = questions.length; // 총 문제 수 업데이트
+
+            if (questions.length > settings.questionCount) {
+                questions = questions.slice(0, settings.questionCount);
+            }// 설정된 문제 수만큼 문제 배열 자르기
+
+            totalQuestions = questions.length;
             score = 0; // 점수 초기화
             wrongQuestions = [];
             
@@ -864,7 +869,11 @@
             questions = originalQuestions.filter(
                 q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
             );
-            totalQuestions = questions.length; // 총 문제 수 업데이트
+            if(questions.length > settings.questionCount){
+                totalQuestions = settings.questionCount;
+            } else {
+                totalQuestions = questions.length;
+            }
             score = 0; // 점수 초기화
             wrongQuestions = [];
             currentMode = "game";
