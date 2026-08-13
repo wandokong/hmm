@@ -1,4 +1,4 @@
-<img src="./images/main.png" width="600">
+<img src="./images/main.PNG" width="600">
 
 # shortcut
 ### 키보드 단축키를 배우는 웹 게임
@@ -42,20 +42,20 @@
 
 # 시작 화면
 
-<img src="./images/main.png" width="600">
+<img src="./images/main.PNG" width="600">
 
 # 학습 화면
 
-<img src="./images/learning.png" width="600">
+<img src="./images/learning.PNG" width="600">
 
 # 게임 화면
 
 <img src="./images/game.png" width="600">
-<img src="./images/game2.png" width="600">
+<img src="./images/game2.PNG" width="600">
 
 # 결과 화면
 
-<img src="./images/result.png" width="600">
+<img src="./images/result.PNG" width="600">
 
 ---
 

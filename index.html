@@ -425,6 +425,33 @@
             settings.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
             showScreen("menu");
             console.log(settings);
+        }   
+
+        function prepareGame() {
+            
+            if(currentCategory === "windows"){
+                gameType = "choice";
+                document.getElementById("keyboard").style.display = "none";
+            }else{
+                gameType = "subjective";
+                createKeyboard();
+                document.getElementById("keyboard").style.display = "flex";
+            }
+
+            questions = originalQuestions.filter(
+                q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
+            );
+
+            questions.sort(() => Math.random() - 0.5);// 문제 배열 섞기
+            if (questions.length > settings.questionCount) {
+                questions = questions.slice(0, settings.questionCount);
+            }// 설정된 문제 수만큼 문제 배열 자르기
+            
+            console.log("문제 수 제한 후:", settings.questionCount);
+
+            totalQuestions = questions.length;
+            score = 0; // 점수 초기화
+            wrongQuestions = [];
         }
 
         function startQuestion() {
@@ -434,7 +461,6 @@
             let randomIndex = Math.floor(Math.random() * questions.length);// 랜덤 인덱스 생성 0~1까지 난수 생성후 문제수를 곱하고 올림
             currentQuestion = questions[randomIndex];
             questions.splice(randomIndex, 1);
-            settings.questionCount--;
 
             if(gameType === "subjective"){
 
@@ -802,27 +828,7 @@
                 return;
             }
 
-            if(currentCategory === "windows"){
-                gameType = "choice";
-                document.getElementById("keyboard").style.display = "none";
-            }else{
-                gameType = "subjective";
-                createKeyboard();
-                document.getElementById("keyboard").style.display = "flex";
-            }
-
-            questions = originalQuestions.filter(
-                q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
-            );
-
-
-            if (questions.length > settings.questionCount) {
-                questions = questions.slice(0, settings.questionCount);
-            }// 설정된 문제 수만큼 문제 배열 자르기
-
-            totalQuestions = questions.length;
-            score = 0; // 점수 초기화
-            wrongQuestions = [];
+            prepareGame();
             
             currentMode = "game";
             showScreen("gameScreen"); // 게임 화면 표시
@@ -866,26 +872,10 @@
         });
 
         document.getElementById("restart").addEventListener("click", function() { // 다시 시작 버튼 클릭 시
-            questions = originalQuestions.filter(
-                q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
-            );
-            if(questions.length > settings.questionCount){
-                totalQuestions = settings.questionCount;
-            } else {
-                totalQuestions = questions.length;
-            }
-            score = 0; // 점수 초기화
-            wrongQuestions = [];
+            prepareGame();
+            
             currentMode = "game";
             showScreen("gameScreen"); // 게임 화면 표시
-            if(currentCategory === "windows"){
-                gameType = "choice";
-                document.getElementById("keyboard").style.display = "none";
-            }else{
-                gameType = "subjective";
-                createKeyboard();
-                document.getElementById("keyboard").style.display = "flex";
-            }
             startQuestion(); // 문제 시작
         });
 
