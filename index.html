@@ -222,6 +222,31 @@
         background-color: #BD4444;
     }
 
+
+  .gameTitle h1{/*1이랑 2 중에 뭐가더 나은지*/
+    font-size:64px;
+    font-weight:900;
+    letter-spacing:4px;
+
+    background:linear-gradient(
+        180deg,
+        #2b2b30 0%,
+        #44444e 55%,
+        #715a5a 100%
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+
+    text-shadow:
+        0 4px 0 #D3DAD9,
+        0 8px 18px rgba(0,0,0,.4);
+}
+
+ .gameTitle2 h1{
+    color:#D3DAD9;
+ }
+
     </style>
 </head>
 <body>
@@ -235,7 +260,9 @@
                 <button class="categoryBtn" onclick="selectCategory('edit', this)">Edit</button>
             </div>
 
-            <h1>단축키 퀴즈</h1>
+            <div class="gameTitle2">
+                <h1>Short Cut Lab</h1><!-- 이름 보류 -->
+            </div>
             <button id="studyButton">학습하기</button>
             <button id="startButton">문제 시작</button>
             <button id="settingButton" onclick="loadSettings(), showScreen('settingScreen')">⚙ 설정</button>
