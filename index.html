@@ -1,4 +1,4 @@
-<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림-->
+<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림 51쪽 span 고쳐러-->
 <html>
 <head>
     <meta charset="UTF-8">
@@ -47,6 +47,12 @@
         font-size:23px;
         cursor:pointer;
         transition:0.2s ease;
+    }
+    span{
+        color : #d3dad9;
+        font-size: 60px;
+        margin-top : 0px;
+        margin-bottom:10px;
     }
     button:hover{
         transform:scale(1.05);
@@ -223,7 +229,7 @@
     }
 
 
-  .gameTitle h1{/*1이랑 2 중에 뭐가더 나은지*/
+  .gameTitle h1{
     font-size:64px;
     font-weight:900;
     letter-spacing:4px;
@@ -242,11 +248,6 @@
         0 4px 0 #D3DAD9,
         0 8px 18px rgba(0,0,0,.4);
 }
-
- .gameTitle2 h1{
-    color:#D3DAD9;
- }
-
     </style>
 </head>
 <body>
@@ -260,8 +261,8 @@
                 <button class="categoryBtn" onclick="selectCategory('edit', this)">Edit</button>
             </div>
 
-            <div class="gameTitle2">
-                <h1>Short Cut Lab</h1><!-- 이름 보류 -->
+            <div class="gameTitle">
+                <h1>ShortCut Lab</h1><!-- 이름 보류 -->
             </div>
             <button id="studyButton">학습하기</button>
             <button id="startButton">문제 시작</button>
@@ -306,7 +307,10 @@
         </div>
 
         <div id="gameScreen"><!-- 게임 화면 -->
-            <h1 id="time"></h1>
+            <div id="statusArea">
+                <span id="correct"></span>
+                <span id="time"></span>
+            </div>
             <h2 id="question"></h2>
             <h3 id="score"></h3>
             <h3 id="currentInput">현재 입력</h3>
@@ -444,6 +448,7 @@
             document.getElementById("timerCheck").checked = settings.timer;
             document.querySelector(`input[name="questionCount"][value="${settings.questionCount}"]`).checked = true;// 저장된 상태로 바꿈
             document.querySelector(`input[name="difficulty"][value="${settings.difficulty}"]`).checked = true;// 저장된 상태로 바꿈
+
         }
 
         function saveSettings(){
@@ -451,6 +456,7 @@
             settings.questionCount = Number(document.querySelector('input[name="questionCount"]:checked').value);
             settings.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
             showScreen("menu");
+
             console.log(settings);
         }   
 
@@ -496,7 +502,13 @@
 
                 document.getElementById("question").innerText = currentQuestion.q + " (" + (totalQuestions - questions.length) + " / " + totalQuestions + ")";
                 document.getElementById("score").innerText = score + "점";
-                startTimer();
+                if (settings.timer === true) {
+                    document.getElementById("time").style.display = "block";
+                    startTimer();
+                } else {
+                    clearInterval(timerId);
+                    document.getElementById("time").style.display = "none";
+                }
                 document.getElementById("currentInput").innerText = "현재 입력: " + formatKeys(pressedKeys);
                 start = true;
             }else{
@@ -506,7 +518,13 @@
 
                 showChoiceQuestion();
 
-                startTimer();
+                if (settings.timer === true) {
+                    document.getElementById("time").style.display = "block";
+                    startTimer();
+                } else {
+                    clearInterval(timerId);
+                    document.getElementById("time").style.display = "none";
+                }
                 start = true;
             }
         }
@@ -641,8 +659,8 @@
             // 정답 체크
             if (currentMode === "game") {
                 if (JSON.stringify(pressedKeys) === JSON.stringify(currentQuestion.keys)) { // 누른 키와 현재 문제 키 비교, 그냥 비교하면 false나오므로 JSON.stringify로 문자열로 변환해서 비교 
-                    document.getElementById("time").style.color = correctColor;
-                    document.getElementById("time").innerText = "정답";
+                    document.getElementById("correct").style.color = correctColor;
+                    document.getElementById("correct").innerText = "정답";
                     clearInterval(timerId);// 타이머 멈춤
                     score++;// 점수 증가
                     start = false;
@@ -652,8 +670,8 @@
                     }, 1000);
 
                 }else {
-                    document.getElementById("time").style.color = wrongColor;
-                    document.getElementById("time").innerText = "오답";
+                    document.getElementById("correct").style.color = wrongColor;
+                    document.getElementById("correct").innerText = "오답";
                     clearInterval(timerId);// 타이머 멈춤
                     start = false;
                     
@@ -697,14 +715,14 @@
 
             if(correct){
                 button.classList.add("correct");
-                document.getElementById("time").style.color = correctColor;
-                document.getElementById("time").innerText = "정답";
+                document.getElementById("correct").style.color = correctColor;
+                document.getElementById("correct").innerText = "정답";
 
                 score++;
             }else{
                 button.classList.add("wrong");
-                document.getElementById("time").style.color = wrongColor;
-                document.getElementById("time").innerText="오답";
+                document.getElementById("correct").style.color = wrongColor;
+                document.getElementById("correct").innerText="오답";
 
                 wrongQuestions.push({               
                     ...currentQuestion, 
