@@ -1,4 +1,4 @@
-<img src="./images/main.png" width="600">
+<img src="./images/main.PNG" width="600">
 
 # ShortCut
 
@@ -44,7 +44,7 @@
 
 ### 시작 화면
 
-<img src="./images/main.png" width="600">
+<img src="./images/main.PNG" width="600">
 
 ### 학습 화면
 
