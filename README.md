@@ -1,6 +1,6 @@
 <img src="./images/main.PNG" width="600">
 
-# ShortCut
+# ShortCut Lab
 
 ---
 
@@ -87,6 +87,6 @@
 
 ## 개발
 
-**완두콩**
+**박준성**
 
 HTML5 · CSS3 · JavaScript
