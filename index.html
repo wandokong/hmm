@@ -1,4 +1,4 @@
-<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림 51쪽 span 고쳐러-->
+<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림 난이도 문제 주관식에서는 잘 되는데 객관식에서 무슨 오류난다-->
 <html>
 <head>
     <meta charset="UTF-8">
@@ -32,7 +32,8 @@
     h2{
         color : #d3dad9;
         font-size: 35px;
-        margin-bottom:30px;
+        margin-top : 0px;
+        margin-bottom:0px;
     }
     h3{
         color : #d3dad9;
@@ -48,7 +49,7 @@
         cursor:pointer;
         transition:0.2s ease;
     }
-    span{
+    .choice.correct{
         color : #d3dad9;
         font-size: 60px;
         margin-top : 0px;
@@ -287,8 +288,9 @@
                 <div class="settingItem">
                     <label>난이도</label>
                     <div class="settingOption">
+                        <label><input type="radio" name="difficulty" value="all" checked> 모든 난이도</label>
                         <label><input type="radio" name="difficulty" value="easy"> 쉬움</label>
-                        <label><input type="radio" name="difficulty" value="normal" checked> 보통</label>
+                        <label><input type="radio" name="difficulty" value="normal"> 보통</label>
                         <label><input type="radio" name="difficulty" value="hard"> 어려움</label>
                     </div>
                 </div>
@@ -307,10 +309,7 @@
         </div>
 
         <div id="gameScreen"><!-- 게임 화면 -->
-            <div id="statusArea">
-                <span id="correct"></span>
-                <span id="time"></span>
-            </div>
+            <h1 id="time"></h1>
             <h2 id="question"></h2>
             <h3 id="score"></h3>
             <h3 id="currentInput">현재 입력</h3>
@@ -336,56 +335,58 @@
         let time = 10;
         let timerId;
 
-        let score = 0;//문제 은행 : windows, browser, edit, linux, vs code(보류)
+        let score = 0;
         
-        const originalQuestions = [
-            { q: "바탕 화면 표시/숨기기", keys:["meta","d"], category:"windows" },
-            { q: "파일 탐색기 열기", keys:["meta","e"], category:"windows" },
-            { q: "컴퓨터 잠금", keys:["meta","l"], category:"windows" },
-            { q: "실행 창 열기", keys:["meta","r"], category:"windows" },
-            { q: "설정 열기", keys:["meta","i"], category:"windows" },
-            { q: "빠른 설정 열기", keys:["meta","a"], category:"windows" },
+        const originalQuestions = [//문제 은행 : windows, browser, edit, linux, vs code(보류) / 난이도 : easy(많이 알고 쉬움), normal(아는사람 별로 없), hard(아는사람 별로 없고 어려움)
+            { q: "바탕 화면 표시/숨기기", keys:["meta","d"], category:"windows" ,difficulty:"easy"},
+            { q: "파일 탐색기 열기", keys:["meta","e"], category:"windows" ,difficulty:"normal"},
+            { q: "컴퓨터 잠금", keys:["meta","l"], category:"windows" ,difficulty:"normal"},
+            { q: "실행 창 열기", keys:["meta","r"], category:"windows" ,difficulty:"normal"},
+            { q: "설정 열기", keys:["meta","i"], category:"windows" ,difficulty:"normal"},
+            { q: "빠른 설정 열기", keys:["meta","a"], category:"windows" ,difficulty:"normal"},
             //{ q: "알림 센터 열기", keys:["meta","n"], category:"windows" },
-            { q: "Windows 검색 열기", keys:["meta","s"], category:"windows" },
-            { q: "작업 보기 열기", keys:["meta","tab"], category:"windows" },
-            { q: "앱 전환", keys:["alt","tab"], category:"windows" },
-            { q: "현재 창 닫기", keys:["alt","f4"], category:"windows" },
-            { q: "작업 관리자 열기", keys:["ctrl","shift","esc"], category:"windows" },
+            { q: "Windows 검색 열기", keys:["meta","s"], category:"windows" ,difficulty:"normal"},
+            { q: "작업 보기 열기", keys:["meta","tab"], category:"windows" ,difficulty:"normal"},
+            { q: "앱 전환", keys:["alt","tab"], category:"windows" ,difficulty:"easy"},
+            { q: "현재 창 닫기", keys:["alt","f4"], category:"windows" ,difficulty:"easy"},
+            { q: "작업 관리자 열기", keys:["ctrl","shift","esc"], category:"windows" ,difficulty:"normal"},
             //{ q: "보안 옵션 화면 열기", keys:["ctrl","alt","delete"], category:"windows" },
             //{ q: "전체 화면 캡처", keys:["printscreen"], category:"windows" },
-            { q: "화면 일부 캡처", keys:["meta","shift","s"], category:"windows" },
-            { q: "스크린샷 저장", keys:["meta","printscreen"], category:"windows" },
-            { q: "휴지통으로 삭제", keys:["delete"], category:"windows" },
-            { q: "영구 삭제", keys:["shift","delete"], category:"windows" },
+            { q: "화면 일부 캡처", keys:["meta","shift","s"], category:"windows" ,difficulty:"normal"},
+            { q: "스크린샷 저장", keys:["meta","printscreen"], category:"windows" ,difficulty:"hard"},
+            { q: "휴지통으로 삭제", keys:["delete"], category:"windows" ,difficulty:"normal"},
+            { q: "영구 삭제", keys:["shift","delete"], category:"windows" ,difficulty:"hard"},
 
-            { q: "전체화면", keys:["f11"], category:"browser" },
-            { q: "우클릭 메뉴", keys:["shift","f10"], category:"browser" },
-            { q: "화면 확대" , keys:["control","+"], category:"browser" },
-            { q: "화면 축소", keys:["control","-"], category:"browser" },
-            { q: "화면 원래대로", keys:["control","0"], category:"browser" },
-            { q: "다운로드 목록", keys:["control","j"], category:"browser" },
-            { q: "인터넷 기록 삭제 창 이동", keys:["control","shift","delete"], category:"browser" },
-            { q: "새로고침", keys: ["f5"], category: "browser" },
+            { q: "전체화면", keys:["f11"], category:"browser" ,difficulty:"normal"},
+            { q: "개발자 도구", keys:["f12"], category:"browser" ,difficulty:"normal"},
+            { q: "우클릭 메뉴", keys:["shift","f10"], category:"browser" ,difficulty:"hard"},
+            { q: "화면 확대" , keys:["control","+"], category:"browser" ,difficulty:"easy"},
+            { q: "화면 축소", keys:["control","-"], category:"browser" ,difficulty:"easy"},
+            { q: "화면 원래대로", keys:["control","0"], category:"browser" ,difficulty:"normal"},
+            { q: "다운로드 목록", keys:["control","j"], category:"browser" ,difficulty:"normal"},
+            { q: "인터넷 기록 삭제 창 이동", keys:["control","shift","delete"], category:"browser" ,difficulty:"hard"},
+            { q: "새로고침", keys: ["f5"], category: "browser" ,difficulty:"normal"},
 
-            { q: "복사", keys: ["control", "c"], category: "edit" },
-            { q: "붙여넣기", keys: ["control", "v"], category: "edit" },
-            { q: "되돌리기", keys: ["control", "z"], category: "edit" },
-            { q: "잘라내기", keys: ["control", "x"], category: "edit" },
-            { q: "전체 선택", keys: ["control", "a"], category: "edit" },
-            { q: "파일 이름 바꾸기", keys:["f2"], category:"windows" },
-            { q: "인쇄", keys:["control","p"], category:"edit" },
-            { q: "찾기", keys:["control","f"], category:"edit" },
-            { q: "저장", keys:["control","s"], category:"edit" },
-            { q: "열기", keys:["control","o"], category:"edit" },
-            { q: "다시 실행 단축키", keys:["control","y"], category:"edit" },
-            { q: "바꾸기", keys:["control","h"], category:"edit" },
-            { q: "이동", keys:["control","g"], category:"edit" },
-            { q: "단어 단위로 왼쪽 이동", keys:["control","arrowleft"], category:"edit" },
-            { q: "단어 단위로 오른쪽 이동", keys:["control","arrowright"], category:"edit" },
-            { q: "단어 단위로 삭제", keys:["control","backspace"], category:"edit" },
+            { q: "복사", keys: ["control", "c"], category: "edit" ,difficulty:"easy"},
+            { q: "붙여넣기", keys: ["control", "v"], category: "edit" ,difficulty:"easy"},
+            { q: "되돌리기", keys: ["control", "z"], category: "edit" ,difficulty:"easy"},
+            { q: "잘라내기", keys: ["control", "x"], category: "edit" ,difficulty:"easy"},
+            { q: "전체 선택", keys: ["control", "a"], category: "edit" ,difficulty:"easy"},
+            { q: "파일 이름 바꾸기", keys:["f2"], category:"windows" ,difficulty:"normal"},
+            { q: "인쇄", keys:["control","p"], category:"edit" ,difficulty:"normal"},
+            { q: "찾기", keys:["control","f"], category:"edit" ,difficulty:"normal"},
+            { q: "저장", keys:["control","s"], category:"edit" ,difficulty:"easy"},
+            { q: "열기", keys:["control","o"], category:"edit" ,difficulty:"normal"},
+            { q: "다시 실행", keys:["control","y"], category:"edit" ,difficulty:"normal"},
+            { q: "바꾸기", keys:["control","h"], category:"edit" ,difficulty:"normal"},
+            { q: "이동", keys:["control","g"], category:"edit" ,difficulty:"normal"},
+            { q: "단어 단위로 왼쪽 이동", keys:["control","arrowleft"], category:"edit" ,difficulty:"hard"},
+            { q: "단어 단위로 오른쪽 이동", keys:["control","arrowright"], category:"edit" ,difficulty:"hard"},
+            { q: "단어 단위로 삭제", keys:["control","backspace"], category:"edit" ,difficulty:"hard"},
+            { q: "한 줄 삭제", keys:["control","shift","backspace"], category:"edit" ,difficulty:"hard"},
 
-            { q: "터미널 화면 지우기", keys: ["control", "l"], category: "linux" },
-            { q: "프로그램 강제 종료", keys: ["control", "c"], category: "linux" }
+            { q: "터미널 화면 지우기", keys: ["control", "l"], category: "linux" ,difficulty:"normal"},
+            { q: "프로그램 강제 종료", keys: ["control", "c"], category: "linux" ,difficulty:"normal"}
         ];
         let questions = [];
         let totalQuestions = 0;
@@ -474,6 +475,12 @@
             questions = originalQuestions.filter(
                 q => q.category === currentCategory // 초기 카테고리에 맞는 문제로 시작
             );
+            
+            if (settings.difficulty !== "all") {
+                questions = questions.filter(
+                    q => q.difficulty === settings.difficulty// 난이도에 맞는 문제로 필터링
+                );
+            }
 
             questions.sort(() => Math.random() - 0.5);// 문제 배열 섞기
             if (questions.length > settings.questionCount) {
@@ -502,29 +509,15 @@
 
                 document.getElementById("question").innerText = currentQuestion.q + " (" + (totalQuestions - questions.length) + " / " + totalQuestions + ")";
                 document.getElementById("score").innerText = score + "점";
-                if (settings.timer === true) {
-                    document.getElementById("time").style.display = "block";
-                    startTimer();
-                } else {
-                    clearInterval(timerId);
-                    document.getElementById("time").style.display = "none";
-                }
                 document.getElementById("currentInput").innerText = "현재 입력: " + formatKeys(pressedKeys);
+                startTimer();
                 start = true;
             }else{
 
                 document.getElementById("choices").style.display = "block";
                 document.getElementById("currentInput").style.display = "none";
-
-                showChoiceQuestion();
-
-                if (settings.timer === true) {
-                    document.getElementById("time").style.display = "block";
-                    startTimer();
-                } else {
-                    clearInterval(timerId);
-                    document.getElementById("time").style.display = "none";
-                }
+                 showChoiceQuestion();
+                startTimer();
                 start = true;
             }
         }
@@ -587,37 +580,50 @@
         }
 
         function startTimer() {
+
+            console.log("타이머 호출");
+
             clearInterval(timerId);
             time = 10;//시간 초기화
             document.getElementById("time").style.color = "rgb(211, 218, 217)";
 
-            document.getElementById("time").innerText = time;//화면에 10초 표시 
-            timerId = setInterval(() => {//1초마다 실행
-                time--;
-                document.getElementById("time").innerText = time;//화면에 시간 표시
-                
-                if (time <= 3) {
-                    document.getElementById("time").style.color = wrongColor;// 시간이 3초 이하일 때 빨간색으로 표시
-                } else {
-                    document.getElementById("time").style.color = "rgb(211, 218, 217)";// 그 외에는 흰색으로 표시
-                }
 
-                if (time===0){
-                    document.getElementById("time").innerText = "시간 초과";// 시간 초과 표시
-                    document.getElementById("time").style.color = timeoutColor;
-                    clearInterval(timerId);// 타이머 멈춤
-                    start = false;
+            if(settings.timer === true){
+                document.getElementById("time").innerText = time;//화면에 10초 표시 
+                timerId = setInterval(() => {//1초마다 실행
+                    time--;
+                    document.getElementById("time").innerText = time;//화면에 시간 표시
+                    
+                    if (time <= 3) {
+                        document.getElementById("time").style.color = wrongColor;// 시간이 3초 이하일 때 빨간색으로 표시
+                    } else {
+                        document.getElementById("time").style.color = "rgb(211, 218, 217)";// 그 외에는 흰색으로 표시
+                    }
 
-                    wrongQuestions.push({// 틀린 문제 배열에 추가
-                        ...currentQuestion,
-                        userInput: "입력 없음"
-                    })
+                    if (time===0){
+                        document.getElementById("time").innerText = "시간 초과";// 시간 초과 표시
+                        document.getElementById("time").style.color = timeoutColor;
+                        clearInterval(timerId);// 타이머 멈춤
+                        start = false;
 
-                    setTimeout(() => {
-                        nextQuestion();// 다음 문제
-                    }, 1000);
-                }
-            }, 1000);
+                        wrongQuestions.push({// 틀린 문제 배열에 추가
+                            ...currentQuestion,
+                            userInput: "입력 없음"
+                        })
+
+                        setTimeout(() => {
+                            nextQuestion();// 다음 문제
+                        }, 1000);
+                    }
+                }, 1000);
+
+            }else{
+
+                console.log("타이머 사용 안함");
+
+                document.getElementById("time").innerText = "";// 타이머 사용 안함
+            }
+            
         }
 
         document.addEventListener("keydown", function(e) {
@@ -659,8 +665,8 @@
             // 정답 체크
             if (currentMode === "game") {
                 if (JSON.stringify(pressedKeys) === JSON.stringify(currentQuestion.keys)) { // 누른 키와 현재 문제 키 비교, 그냥 비교하면 false나오므로 JSON.stringify로 문자열로 변환해서 비교 
-                    document.getElementById("correct").style.color = correctColor;
-                    document.getElementById("correct").innerText = "정답";
+                    document.getElementById("time").style.color = correctColor;
+                    document.getElementById("time").innerText = "정답";
                     clearInterval(timerId);// 타이머 멈춤
                     score++;// 점수 증가
                     start = false;
@@ -670,8 +676,8 @@
                     }, 1000);
 
                 }else {
-                    document.getElementById("correct").style.color = wrongColor;
-                    document.getElementById("correct").innerText = "오답";
+                    document.getElementById("time").style.color = wrongColor;
+                    document.getElementById("time").innerText = "오답";
                     clearInterval(timerId);// 타이머 멈춤
                     start = false;
                     
