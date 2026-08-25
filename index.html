@@ -1,4 +1,4 @@
-<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림 난이도 문제 주관식에서는 잘 되는데 객관식에서 무슨 오류난다-->
+<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림  코렉트 클래스를 원래 버튼에 넣었는데 버튼에 다른 코렉트 클래스가 들어가나봐 크기가 같이 커져 -->
 <html>
 <head>
     <meta charset="UTF-8">
@@ -229,7 +229,6 @@
         background-color: #BD4444;
     }
 
-
   .gameTitle h1{
     font-size:64px;
     font-weight:900;
@@ -421,7 +420,7 @@
         let settings = {
             timer : true,
             questionCount : 30,
-            difficulty : "normal"
+            difficulty : "all"
         };
 
         document.getElementById("keyboard").style.display = "none";// 키보드 숨기기
@@ -721,20 +720,21 @@
 
             if(correct){
                 button.classList.add("correct");
-                document.getElementById("correct").style.color = correctColor;
-                document.getElementById("correct").innerText = "정답";
+                document.getElementById("time").style.color = correctColor;
+                document.getElementById("time").innerText = "정답";
 
                 score++;
             }else{
                 button.classList.add("wrong");
-                document.getElementById("correct").style.color = wrongColor;
-                document.getElementById("correct").innerText="오답";
+                document.getElementById("time").style.color = wrongColor;
+                document.getElementById("time").innerText = "오답";
 
                 wrongQuestions.push({               
                     ...currentQuestion, 
                     userInput: userAnswer
                 });
             }
+
             clearInterval(timerId);// 타이머 멈춤
             start = false;
 
