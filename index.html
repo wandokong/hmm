@@ -1,4 +1,4 @@
-<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림  코렉트 클래스를 원래 버튼에 넣었는데 버튼에 다른 코렉트 클래스가 들어가나봐 크기가 같이 커져 -->
+<!DOCTYPE html><!--키보드 누를 때 ' 거랑 \ 이거 안눌림 -->
 <html>
 <head>
     <meta charset="UTF-8">
@@ -48,12 +48,6 @@
         font-size:23px;
         cursor:pointer;
         transition:0.2s ease;
-    }
-    .choice.correct{
-        color : #d3dad9;
-        font-size: 60px;
-        margin-top : 0px;
-        margin-bottom:10px;
     }
     button:hover{
         transform:scale(1.05);
@@ -118,13 +112,19 @@
         overflow-y:auto;
         text-align:left;
     }
+    .gameStatus{
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        gap:20px;
+    }
+    .combo{
+        color:#d3dad9;
+    }
     #learnResult{/**/
         color : #d3dad9;
         font-size: 30px;
         margin-bottom:30px;
-    }
-    #backMenu{
-        display:inline-block;
     }
     #settingScreen{
         display:none; /* 설정 화면 숨김 */
@@ -214,7 +214,6 @@
     .key.space{
         min-width:280px;
     }
-
     .key.correct{
         background-color: #73976A;
     }
@@ -304,13 +303,16 @@
             <h1>학습하기</h1>
             <div id="studyList"></div>
             <p id="learnResult"></p>
-            <button id="backMenu">메뉴로</button>
+            <button id="menuButton">메뉴로</button>
         </div>
 
         <div id="gameScreen"><!-- 게임 화면 -->
             <h1 id="time"></h1>
             <h2 id="question"></h2>
-            <h3 id="score"></h3>
+            <div class="gameStatus">
+                <h3 id="score"></h3>
+                <h3 id="combo" class="combo"></h3>
+            </div>
             <h3 id="currentInput">현재 입력</h3>
             <div id="choices"></div>
         </div> 
@@ -423,6 +425,8 @@
             difficulty : "all"
         };
 
+        let combo = 0;
+
         document.getElementById("keyboard").style.display = "none";// 키보드 숨기기
 
         function selectCategory(category, button) { // 카테고리 선택 함수
@@ -490,6 +494,7 @@
 
             totalQuestions = questions.length;
             score = 0; // 점수 초기화
+            combo = 0; // 콤보 초기화
             wrongQuestions = [];
         }
 
@@ -551,7 +556,13 @@
             pressedKeys = [];// 누른 키 배열 초기화
             updateKeyboardUI()
             document.getElementById("currentInput").innerText = "현재 입력: " + formatKeys(pressedKeys);// 현재 입력 표시
-            document.getElementById("score").innerText = score + "점";// 점수 화면에 표시
+            document.getElementById("score").innerText = score + "점";// 점수 화면에 표
+            if (combo === 0){
+                document.getElementById("combo").innerText = ""
+            }else{
+                document.getElementById("combo").innerText = combo + " Combo";// 콤보 화면에 표시
+            }
+            
 
             if (questions.length > 0) {// 다음 문제가 있으면
                 startQuestion();
@@ -668,6 +679,7 @@
                     document.getElementById("time").innerText = "정답";
                     clearInterval(timerId);// 타이머 멈춤
                     score++;// 점수 증가
+                    combo++;// 콤보 증가
                     start = false;
                     setTimeout(() => {
                         document.getElementById("currentInput").innerText = lastInput
@@ -679,7 +691,8 @@
                     document.getElementById("time").innerText = "오답";
                     clearInterval(timerId);// 타이머 멈춤
                     start = false;
-                    
+                    combo = 0; // 콤보 초기화
+
                     wrongQuestions.push({// 틀린 문제 배열에 추가
                         ...currentQuestion,
                         userInput: formatKeys(pressedKeys)
@@ -724,10 +737,13 @@
                 document.getElementById("time").innerText = "정답";
 
                 score++;
+                combo++;
             }else{
                 button.classList.add("wrong");
                 document.getElementById("time").style.color = wrongColor;
                 document.getElementById("time").innerText = "오답";
+
+                combo = 0; // 콤보 초기화
 
                 wrongQuestions.push({               
                     ...currentQuestion, 
@@ -911,17 +927,6 @@
             start=true;
         });
 
-        document.getElementById("backMenu").addEventListener("click", function(){
-
-            currentMode = "menu";
-            document.getElementById("studyScreen").style.display = "none";
-            document.getElementById("keyboard").style.display = "none";
-            document.getElementById("menu").style.display = "block";
-
-            start=false;
-
-        });
-
         document.getElementById("restart").addEventListener("click", function() { // 다시 시작 버튼 클릭 시
             prepareGame();
             
@@ -949,6 +954,7 @@
             questions = [...wrongQuestions]; // 틀린 문제만 다시 시작
             totalQuestions = questions.length; // 총 문제 수 업데이트
             score = 0; // 점수 초기화
+            combo = 0; // 콤보 초기화
             wrongQuestions = [];
             currentMode = "game";
             showScreen("gameScreen"); // 게임 화면 표시
